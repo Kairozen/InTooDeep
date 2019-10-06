@@ -112,7 +112,6 @@ void Tilemap::drawMap(RenderWindow &window)
                 int verticalPositionOnSprite = (tileNumBackground / TILESET_LINE_SIZE) * TILE_SIZE;
                 tilesetSprite.setPosition(Vector2f(x * TILE_SIZE, y * TILE_SIZE));
                 tilesetSprite.setTextureRect(IntRect(horizontalPositionOnSprite, verticalPositionOnSprite, TILE_SIZE, TILE_SIZE));
-                //cout << "h:" << x << " v:" << y << " tile:" << tileNumBackground << " draw at :" << x*TILE_SIZE << "," << y*TILE_SIZE << endl;
                 window.draw(tilesetSprite);
             }
             if(tileNumColliding > -1)
@@ -120,7 +119,6 @@ void Tilemap::drawMap(RenderWindow &window)
                 int horizontalPositionOnSprite = (tileNumColliding % TILESET_LINE_SIZE) * TILE_SIZE;
                 int verticalPositionOnSprite = (tileNumColliding / TILESET_LINE_SIZE) * TILE_SIZE;
                 tilesetSprite.setPosition(Vector2f(x * TILE_SIZE, y * TILE_SIZE));
-                //cout << "h:" << x << " v:" << y << " tile:" << tileNumColliding << " draw at :" << x*TILE_SIZE << "," << y*TILE_SIZE << endl;
                 tilesetSprite.setTextureRect(IntRect(horizontalPositionOnSprite, verticalPositionOnSprite, TILE_SIZE, TILE_SIZE));
                 window.draw(tilesetSprite);
             }

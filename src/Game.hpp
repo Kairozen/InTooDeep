@@ -3,8 +3,8 @@
 #include <iostream>
 #include <cstdlib>
 
+#include "Character.hpp"
 #include "Tilemap.hpp"
-//#include "Character.hpp"
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 480
@@ -17,7 +17,7 @@ private:
 	Tilemap 		tilemap;
 	View 			camera;
 	Clock 			deltaClock;
-	//Character 		character;
+	Character 		character;
 
 public:
 	Game();

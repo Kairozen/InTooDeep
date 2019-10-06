@@ -6,6 +6,8 @@ Game::Game() : window(VideoMode(WINDOW_WIDTH,WINDOW_HEIGHT), "Game")
     tilemap.level = 1;
     tilemap.changeLevel();
     camera = window.getView();
+    camera.zoom(0.25);
+    character.initialize();
 }
 
 void Game::update() 
@@ -19,6 +21,8 @@ void Game::renderGraphics()
     window.clear();
     tilemap.drawBackground(window);
     tilemap.drawMap(window);
+    camera.setCenter(character.position);
+    character.draw(window);
     window.display();
 }
 
