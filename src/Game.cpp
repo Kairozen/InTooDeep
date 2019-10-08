@@ -12,7 +12,7 @@ Game::Game() : window(VideoMode(WINDOW_WIDTH,WINDOW_HEIGHT), "Game")
 
 void Game::update() 
 {
-
+    character.isOnGround = true;
 }
 
 void Game::renderGraphics() 
@@ -26,7 +26,7 @@ void Game::renderGraphics()
     window.display();
 }
 
-void Game::processEvents() 
+void Game::processEvents(Time &deltaTime) 
 {
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
         camera.zoom(1.05f);
@@ -35,11 +35,11 @@ void Game::processEvents()
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::E))
         camera.zoom(0.95f);
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
-        camera.move(-10.f,0.f);
+        character.moveLeft(deltaTime);
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::S))
         camera.move(0.f,10.f);
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-        camera.move(10.f,0.f);
+        character.moveRight(deltaTime);
 }
 
 void Game::run() 
@@ -55,7 +55,7 @@ void Game::run()
 
         deltaTime = deltaClock.restart();
         std::cout << "FPS : " << 1.0 / deltaTime.asSeconds() << std::endl;
-        processEvents();
+        processEvents(deltaTime);
         update();
         renderGraphics();
     }

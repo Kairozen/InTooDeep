@@ -26,7 +26,7 @@ public:
 
 	void renderGraphics();
 
-	void processEvents();
+	void processEvents(Time &deltaTile);
 
 	void run();
 

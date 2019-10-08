@@ -30,6 +30,10 @@ public:
 	const int RIGHT = 1;
 	const int LEFT = 2;
 
+	const float GRAVITY = 0.5f;
+	const int JUMP_HEIGHT = 10;
+	const int RUNNING_SPEED = 150;
+
 	Texture characterTexture;
 	Sprite characterSprite;
 
@@ -55,4 +59,11 @@ public:
 
 	void draw(RenderWindow &window);
 
+	void jump();
+
+	void moveRight(Time &deltaTime);
+
+	void moveLeft(Time &deltaTime);
+
+	void idle();
 };

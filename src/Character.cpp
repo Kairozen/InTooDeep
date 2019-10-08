@@ -62,4 +62,46 @@ void Character::draw(RenderWindow &window)
     window.draw(characterSprite);
 }
 
+
+void Character::jump()
+{
+
+}
+
+void Character::moveRight(Time &deltaTime)
+{
+    direction = RIGHT;
+    position.x += RUNNING_SPEED * deltaTime.asSeconds();
+    if(state != RUN && isOnGround)
+    {
+        state = RUN;
+        frameNum = 0;
+        frameTimer = ANIMATION_SPEED;
+        frameMax = NB_FRAMES_RUN;
+    }
+}
+
+void Character::moveLeft(Time &deltaTime)
+{    direction = LEFT;
+    position.x -= RUNNING_SPEED * deltaTime.asSeconds();
+    if(state != RUN && isOnGround)
+    {
+        state = RUN;
+        frameNum = 0;
+        frameTimer = ANIMATION_SPEED;
+        frameMax = NB_FRAMES_RUN;
+    }
+}
+
+void Character::idle()
+{
+    if(state != IDLE)
+    {
+        state = IDLE;
+        frameNum = 0;
+        frameTimer = ANIMATION_SPEED;
+        frameMax = NB_FRAMES_IDLE;
+    }
+}
+
 Character::~Character() {}
