@@ -1,3 +1,6 @@
+#ifndef TILEMAP_HPP
+#define TILEMAP_HPP
+
 #define TILE_SIZE 16
 #include <SFML/Graphics.hpp>
 #include <iostream>
@@ -49,3 +52,5 @@ class Tilemap
 
         void changeLevel();
 };
+
+#endif

@@ -1,6 +1,11 @@
+#ifndef CHARACTER_HPP
+#define CHARACTER_HPP
+
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <iostream>
+#include "UserInput.hpp"
+#include "Tilemap.hpp"
 
 using namespace sf;
 
@@ -30,9 +35,10 @@ public:
 	const int RIGHT = 1;
 	const int LEFT = 2;
 
-	const float GRAVITY = 0.5f;
-	const int JUMP_HEIGHT = 10;
-	const int RUNNING_SPEED = 150;
+	const float GRAVITY = 30.0f;
+	const int JUMP_HEIGHT = 8;
+	const int RUNNING_SPEED = 120;
+	const int MAX_FALLING_SPEED = 30;
 
 	Texture characterTexture;
 	Sprite characterSprite;
@@ -50,7 +56,7 @@ public:
 	// Collision
 	bool isOnGround;
 
-	Vector2f nextPosition;
+	Vector2f movementVector;
 
 	Character();
 	~Character();
@@ -59,7 +65,11 @@ public:
 
 	void draw(RenderWindow &window);
 
-	void jump();
+	void update(UserInput &input, Tilemap &map, Time &deltaTime);
+
+	void handleCollision(Tilemap &map);
+
+	void jump(Time &deltaTime);
 
 	void moveRight(Time &deltaTime);
 
@@ -67,3 +77,5 @@ public:
 
 	void idle();
 };
+
+#endif

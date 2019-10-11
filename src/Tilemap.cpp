@@ -1,3 +1,6 @@
+#ifndef TILEMAP_CPP
+#define TILEMAP_CPP
+
 #include "Tilemap.hpp"
 
 using namespace std;
@@ -131,3 +134,5 @@ void Tilemap::changeLevel()
 {
     loadLevel("maps/level" + to_string(level) + ".csv");
 }
+
+#endif

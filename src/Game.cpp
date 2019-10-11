@@ -1,8 +1,12 @@
+#ifndef GAME_CPP
+#define GAME_CPP
+
 #include "Game.hpp"
 
 Game::Game() : window(VideoMode(WINDOW_WIDTH,WINDOW_HEIGHT), "Game") 
 {
     window.setFramerateLimit(60);
+    userInput = UserInput();
     tilemap.level = 1;
     tilemap.changeLevel();
     camera = window.getView();
@@ -10,9 +14,9 @@ Game::Game() : window(VideoMode(WINDOW_WIDTH,WINDOW_HEIGHT), "Game")
     character.initialize();
 }
 
-void Game::update() 
+void Game::update(Time &deltaTime) 
 {
-    character.isOnGround = true;
+    character.update(userInput, tilemap, deltaTime);
 }
 
 void Game::renderGraphics() 
@@ -26,20 +30,9 @@ void Game::renderGraphics()
     window.display();
 }
 
-void Game::processEvents(Time &deltaTime) 
+void Game::processEvents() 
 {
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-        camera.zoom(1.05f);
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
-        camera.move(0.f,-10.f);
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::E))
-        camera.zoom(0.95f);
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
-        character.moveLeft(deltaTime);
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-        camera.move(0.f,10.f);
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-        character.moveRight(deltaTime);
+    userInput.inputManagement(window);
 }
 
 void Game::run() 
@@ -48,17 +41,14 @@ void Game::run()
     // Gameloop
     while (window.isOpen()) 
     {
-        sf::Event event;
-        while(window.pollEvent(event))
-            if(event.type==sf::Event::Closed)
-                window.close();
-
         deltaTime = deltaClock.restart();
         std::cout << "FPS : " << 1.0 / deltaTime.asSeconds() << std::endl;
-        processEvents(deltaTime);
-        update();
+        processEvents();
+        update(deltaTime);
         renderGraphics();
     }
 }
 
 Game::~Game() {}
+
+#endif
