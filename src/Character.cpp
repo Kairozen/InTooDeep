@@ -86,7 +86,7 @@ void Character::update(UserInput &input, Tilemap& map, Time &deltaTime)
     {
         jump(deltaTime);
     }
-    if(!input.getButton().left && !input.getButton().right)
+    if(!input.getButton().left && !input.getButton().right && isOnGround)
     {
         idle();
     }
@@ -110,65 +110,71 @@ void Character::handleCollision(Tilemap &map)
     isOnGround = false;    
     int xLeft, xRight, yTop, yBottom;
 
-    cout << "x: " << position.x << " y: " << position.y << " move x: " << movementVector.x << " move y: " << movementVector.y << " ";
-
+    // Horizontal collisions
     xLeft = (position.x + movementVector.x) / TILE_SIZE;
     xRight = (position.x + movementVector.x + SPRITE_WIDTH) / TILE_SIZE;
+    yTop = position.y / TILE_SIZE;
+    yBottom = (position.y + SPRITE_HEIGHT - 1) / TILE_SIZE;
+
+    //cout << "x: " << position.x << " y: " << position.y << " move x: " << movementVector.x << " move y: " << movementVector.y << " xleft: " << xLeft << " xright: " << xRight << " ytop: " << yTop << " ybttom: " << yBottom << " ";
+
+    // Moving to the left
+    if(movementVector.x < 0)
+    {
+        if(map.collidingTiles[yTop][xLeft] || map.collidingTiles[yBottom][xLeft])
+        {
+            cout << " gauche ";
+            position.x = (xLeft + 1) * TILE_SIZE;
+            movementVector.x = 0;
+        }
+    }
+    // Moving to the right
+    if(movementVector.x > 0)
+    {    
+        if(map.collidingTiles[yTop][xRight] || map.collidingTiles[yBottom][xRight])
+        {
+            cout << " droite ";
+            position.x = xRight * TILE_SIZE;
+            position.x -= SPRITE_WIDTH + 1;
+            movementVector.x = 0;
+        }
+    }
+
+
+    // Vertical collisions
+    xLeft = position.x / TILE_SIZE;
+    xRight = (position.x + SPRITE_WIDTH) / TILE_SIZE;
     yTop = (position.y + movementVector.y) / TILE_SIZE;
     yBottom = (position.y + movementVector.y + SPRITE_HEIGHT) / TILE_SIZE;
 
-    if(xLeft >= 0 && xRight < MAX_X && yTop >= 0)
+    // Moving towards bottom
+    if(movementVector.y > 0)
     {
-        // Moving to the left
-        if(movementVector.x < 0)
+        if(map.collidingTiles[yBottom][xLeft] || map.collidingTiles[yBottom][xRight])
         {
-            if(map.collidingTiles[yTop][xLeft]/* || map.collidingTiles[yBottom][xLeft]*/)
-            {
-                cout << "gauche is nope" << endl;
-                position.x = xLeft * TILE_SIZE;
-                position.x -= SPRITE_WIDTH + 1;
-                movementVector.x = 0;
-            }
+            position.y = yBottom * TILE_SIZE;
+            position.y -= SPRITE_HEIGHT;
+            movementVector.y = 0;
+            isOnGround = true;
         }
-        // Moving to the right
-        if(movementVector.x > 0)
-        {    
-            if(map.collidingTiles[yTop][xRight] /*|| map.collidingTiles[yBottom][xRight]*/)
-            {
-                cout << "noooon pas à droite" << endl;
-                position.x = (xRight + 1) * TILE_SIZE;
-                movementVector.x = 0;
-            }
-        }
-        // Moving towards bottom
-        if(movementVector.y > 0)
+    }
+    // Moving towards top
+    if(movementVector.y < 0)
+    {
+        if(map.collidingTiles[yTop][xLeft] || map.collidingTiles[yTop][xRight])
         {
-            if(map.collidingTiles[yBottom][xLeft] || map.collidingTiles[yBottom][xRight])
-            {
-                position.y = yBottom * TILE_SIZE;
-                position.y -= SPRITE_HEIGHT;
-                movementVector.y = 0;
-                isOnGround = true;
-            }
+            cout << "BONK LE PLAFOND" << endl;
+            position.y = (yTop + 1) * TILE_SIZE;
+            movementVector.y = 0;
         }
-        // Moving towards top
-        if(movementVector.y < 0)
-        {
-            if(map.collidingTiles[yTop][xLeft] || map.collidingTiles[yTop][xRight])
-            {
-                cout << "BONK LE PLAFOND" << endl;
-                position.y = (yTop + 1) * TILE_SIZE;
-                movementVector.y = 0;
-            }
-        }
+    }
 
-        position += movementVector;
+    position += movementVector;
 
-        if(position.y > MAX_Y * TILE_SIZE)
-        {
-            // We should die here
-            cout << "DEAD BOI" << endl;
-        }
+    if(position.y > MAX_Y * TILE_SIZE)
+    {
+        // We should die here
+        cout << "DEAD BOI" << endl;
     }
 }
 

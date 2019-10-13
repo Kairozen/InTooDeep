@@ -35,10 +35,10 @@ public:
 	const int RIGHT = 1;
 	const int LEFT = 2;
 
-	const float GRAVITY = 30.0f;
+	const float GRAVITY = 20.0f;
 	const int JUMP_HEIGHT = 8;
 	const int RUNNING_SPEED = 120;
-	const int MAX_FALLING_SPEED = 30;
+	const int MAX_FALLING_SPEED = 20;
 
 	Texture characterTexture;
 	Sprite characterSprite;
