@@ -13,6 +13,8 @@
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 480
 
+#define CAMERA_ZOOM 0.35
+
 using namespace sf;
 
 class Game {
@@ -26,6 +28,8 @@ private:
 
 public:
 	Game();
+
+	void moveCamera();
 
 	void update(Time &deltaTime);
 
