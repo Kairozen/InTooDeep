@@ -25,6 +25,8 @@ private:
 	Clock 			deltaClock;
 	Character 		character;
 	UserInput		userInput;
+	Text			text;
+	Font 			font;
 
 public:
 	Game();

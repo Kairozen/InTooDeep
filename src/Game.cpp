@@ -5,10 +5,14 @@
 
 Game::Game() : window(VideoMode(WINDOW_WIDTH,WINDOW_HEIGHT), "Game") 
 {
-    window.setFramerateLimit(60);
+    window.setFramerateLimit(30);
     userInput = UserInput();
     tilemap.level = 1;
     tilemap.changeLevel();
+    font.loadFromFile("fonts/Bubblegum.ttf");
+    text.setFont(font);
+    text.setFillColor(Color::Black);
+    text.setCharacterSize(15);
     camera = window.getView();
     camera.zoom(CAMERA_ZOOM);
     character.initialize();
@@ -31,7 +35,6 @@ void Game::moveCamera()
     }
     else if(character.position.x + (camera.getSize().x/2) > (MAX_X * TILE_SIZE))
     {
-        
         cameraPosition.x = MAX_X * TILE_SIZE - (camera.getSize().x/2);
     }    camera.setCenter(cameraPosition);
 }
@@ -48,7 +51,10 @@ void Game::renderGraphics()
     tilemap.drawBackground(window);
     tilemap.drawMap(window);
     moveCamera();
+    
     character.draw(window);
+    window.setView(window.getDefaultView());
+    window.draw(text);
     window.display();
 }
 
@@ -64,7 +70,8 @@ void Game::run()
     while (window.isOpen()) 
     {
         deltaTime = deltaClock.restart();
-        std::cout << "FPS : " << 1.0 / deltaTime.asSeconds() << std::endl;
+        text.setString(std::to_string(1.0/deltaTime.asSeconds()));
+        //std::cout << "FPS : " << 1.0 / deltaTime.asSeconds() << std::endl;
         processEvents();
         update(deltaTime);
         renderGraphics();

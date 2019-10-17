@@ -70,6 +70,7 @@ void Character::update(UserInput &input, Tilemap& map, Time &deltaTime)
 {
     movementVector.x = 0;
     movementVector.y += GRAVITY * deltaTime.asSeconds();
+    cout << "grav:" << movementVector.y << endl;
 
     if(movementVector.y > MAX_FALLING_SPEED)
         movementVector.y = MAX_FALLING_SPEED;
@@ -182,7 +183,7 @@ void Character::jump(Time &deltaTime)
 {
     if(isOnGround)
     {
-        movementVector.y = -JUMP_HEIGHT /** deltaTime.asSeconds()*/;
+        movementVector.y = -JUMP_HEIGHT;
         isOnGround = false;
     }
 }
