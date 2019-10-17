@@ -23,7 +23,7 @@ void Game::moveCamera()
     }
     else if(character.position.y + (camera.getSize().y/2) > (MAX_Y * TILE_SIZE))
     {
-        cameraPosition.y = WINDOW_HEIGHT - (camera.getSize().y/2); 
+        cameraPosition.y = MAX_Y * TILE_SIZE - (camera.getSize().y/2); 
     }
     if(character.position.x - (camera.getSize().x/2) < 0)
     {
@@ -31,13 +31,12 @@ void Game::moveCamera()
     }
     else if(character.position.x + (camera.getSize().x/2) > (MAX_X * TILE_SIZE))
     {
-        cameraPosition.x = WINDOW_WIDTH - (camera.getSize().x/2);
-    } 
-
-    camera.setCenter(cameraPosition);
+        
+        cameraPosition.x = MAX_X * TILE_SIZE - (camera.getSize().x/2);
+    }    camera.setCenter(cameraPosition);
 }
 
-void Game::update(Time &deltaTime) 
+void Game::update(Time &deltaTime)
 {
     character.update(userInput, tilemap, deltaTime);
 }
