@@ -33,6 +33,11 @@ void Character::initialize()
     position = Vector2f(0,0);
     movementVector = Vector2f(0,0);
     isJumping = false;
+    isSlidingOnWall = false;
+    wallLeft = false;
+    wallRight = false;
+    isWallJumpingLeft = false;
+    isWallJumpingRight = false;
     jumpTime = 0;
 }
 
@@ -71,11 +76,16 @@ void Character::draw(RenderWindow &window)
 void Character::update(UserInput &input, Tilemap& map, Time &deltaTime)
 {
     movementVector.x = 0;
-    movementVector.y += GRAVITY * GRAVITY * deltaTime.asSeconds();
-    cout << "grav:" << movementVector.y << endl;
+    movementVector.y += GRAVITY * deltaTime.asSeconds();
+    
+    // Slow down the falling if we're on a wall and going down
+    if(state == WALL_SLIDE)
+        movementVector.y *= 0.8;
 
     if(movementVector.y > MAX_FALLING_SPEED)
         movementVector.y = MAX_FALLING_SPEED;
+    
+    cout << "grav:" << movementVector.y << endl;
 
     if(isJumping && !input.getButton().jump)
         isJumping = false;
@@ -90,12 +100,30 @@ void Character::update(UserInput &input, Tilemap& map, Time &deltaTime)
     }
     if(input.getButton().jump)
     {
-        jump(deltaTime);
+        if(wallLeft && state == WALL_SLIDE && movementVector.y > 0 && !isOnGround && !isWallJumpingLeft)
+        {
+            wallJumpLeft(deltaTime);
+        }
+        else if(wallRight && state == WALL_SLIDE && movementVector.y > 0 && !isOnGround && !isWallJumpingRight)
+        {
+            wallJumpRight(deltaTime);
+        }
+        else
+        {
+            jump(deltaTime);
+        }
+        
     }
     if(!input.getButton().left && !input.getButton().right && isOnGround)
     {
         idle();
     }
+    // Continue walljump if possible
+    if(isWallJumpingLeft)
+        wallJumpLeft(deltaTime);
+    if(isWallJumpingRight)
+        wallJumpRight(deltaTime);
+
     // If the player is not on the ground, it's in the air so switch to jump animation
     if(!isOnGround)
     {
@@ -109,12 +137,23 @@ void Character::update(UserInput &input, Tilemap& map, Time &deltaTime)
     }
 
     handleCollision(map);
+
+    if(wallRight && input.getButton().right)
+    {
+        state = WALL_SLIDE;
+    }
+    if(wallLeft && input.getButton().left)
+    {
+        state = WALL_SLIDE;
+    }
 }
 
 void Character::handleCollision(Tilemap &map)
 {
-    isOnGround = false;
     int xLeft, xRight, yTop, yBottom;
+    isOnGround = false;
+    wallRight = false;
+    wallLeft = false;
 
     // Horizontal collisions
     xLeft = (position.x + movementVector.x) / TILE_SIZE;
@@ -129,9 +168,9 @@ void Character::handleCollision(Tilemap &map)
     {
         if(map.collidingTiles[yTop][xLeft] || map.collidingTiles[yBottom][xLeft])
         {
-            cout << " gauche ";
             position.x = (xLeft + 1) * TILE_SIZE;
             movementVector.x = 0;
+            wallLeft = true;
         }
     }
     // Moving to the right
@@ -139,10 +178,10 @@ void Character::handleCollision(Tilemap &map)
     {    
         if(map.collidingTiles[yTop][xRight] || map.collidingTiles[yBottom][xRight])
         {
-            cout << " droite ";
             position.x = xRight * TILE_SIZE;
             position.x -= SPRITE_WIDTH + 1;
             movementVector.x = 0;
+            wallRight = true;
         }
     }
 
@@ -180,6 +219,52 @@ void Character::handleCollision(Tilemap &map)
     {
         // We should die here
         cout << "DEAD BOI" << endl;
+    }
+}
+
+void Character::wallJumpLeft(Time &deltaTime)
+{
+    if(!isWallJumpingLeft)
+    {
+        wallJumpTime = 0;
+        isWallJumpingLeft = true;
+    }
+    if(wallJumpTime < WALL_JUMP_LIMIT)
+    {
+        float tmpWallJumpTime;
+        wallJumpTime += deltaTime.asSeconds();
+        tmpWallJumpTime = wallJumpTime / 3;
+        movementVector.x = RUNNING_SPEED * 1.5 * deltaTime.asSeconds();
+        movementVector.y = -JUMP_HEIGHT * tmpWallJumpTime;
+        state = JUMP;
+        isSlidingOnWall = false;
+    }
+    else
+    {
+        isWallJumpingLeft = false;
+    }
+}
+
+void Character::wallJumpRight(Time &deltaTime)
+{
+    if(!isWallJumpingRight)
+    {
+        wallJumpTime = 0;
+        isWallJumpingRight = true;
+    }
+    if(wallJumpTime < WALL_JUMP_LIMIT)
+    {
+        float tmpWallJumpTime;
+        wallJumpTime += deltaTime.asSeconds();
+        tmpWallJumpTime = wallJumpTime / 3;
+        movementVector.x = -RUNNING_SPEED * 1.5 * deltaTime.asSeconds();
+        movementVector.y = -JUMP_HEIGHT * tmpWallJumpTime;
+        state = JUMP;
+        isSlidingOnWall = false;
+    }
+    else
+    {
+        isWallJumpingRight = false;
     }
 }
 

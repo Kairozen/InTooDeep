@@ -33,11 +33,13 @@ public:
 	const int RIGHT = 1;
 	const int LEFT = 2;
 
-	const float GRAVITY = 4.0f;
+	const float GRAVITY = 15.0f;
 	const int JUMP_HEIGHT = 50;
 	const float JUMP_LIMIT = 0.1f;
-	const int RUNNING_SPEED = 120;
+	const float WALL_JUMP_LIMIT = 0.2f;
+	const int RUNNING_SPEED = 100;
 	const int MAX_FALLING_SPEED = 15;
+	const float MAX_HORIZONTAL_SPEED = 0.5f;
 
 	Texture characterTexture;
 	Sprite characterSprite;
@@ -47,13 +49,21 @@ public:
 	float jumpTime;
 	bool isJumping;
 
+	float wallJumpTime;
+	bool isWallJumpingLeft;
+	bool isWallJumpingRight;
+
+	bool isSlidingOnWall;
+	bool wallLeft, wallRight;
+
 	// Coordinates
 	Vector2f position;
 
 	// Animation
 	int frameNum, frameMax, frameTimer;
 
-	int state, direction;
+	int state;
+	int direction;
 
 	// Collision
 	bool isOnGround;
@@ -70,6 +80,10 @@ public:
 	void update(UserInput &input, Tilemap &map, Time &deltaTime);
 
 	void handleCollision(Tilemap &map);
+
+	void wallJumpLeft(Time &deltaTime);
+	
+	void wallJumpRight(Time &deltaTime);
 
 	void jump(Time &deltaTime);
 
