@@ -5,7 +5,7 @@
 
 Game::Game() : window(VideoMode(WINDOW_WIDTH,WINDOW_HEIGHT), "Game") 
 {
-    window.setFramerateLimit(30);
+    window.setFramerateLimit(60);
     userInput = UserInput();
     tilemap.level = 1;
     tilemap.changeLevel();

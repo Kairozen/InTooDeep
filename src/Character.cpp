@@ -7,7 +7,7 @@ using namespace std;
 
 Character::Character()
 {
-    if(!characterTexture.loadFromFile("graphics/player_spritesheet.png"))
+    if(!characterTexture.loadFromFile("graphics/character_spritesheet.png"))
         throw runtime_error("Erreur lors du chargement du sprite personnage");
     characterSprite.setTexture(characterTexture);
 
@@ -32,6 +32,8 @@ void Character::initialize()
     isOnGround = false;
     position = Vector2f(0,0);
     movementVector = Vector2f(0,0);
+    isJumping = false;
+    jumpTime = 0;
 }
 
 void Character::draw(RenderWindow &window)
@@ -69,11 +71,14 @@ void Character::draw(RenderWindow &window)
 void Character::update(UserInput &input, Tilemap& map, Time &deltaTime)
 {
     movementVector.x = 0;
-    movementVector.y += GRAVITY * deltaTime.asSeconds();
+    movementVector.y += GRAVITY * GRAVITY * deltaTime.asSeconds();
     cout << "grav:" << movementVector.y << endl;
 
     if(movementVector.y > MAX_FALLING_SPEED)
         movementVector.y = MAX_FALLING_SPEED;
+
+    if(isJumping && !input.getButton().jump)
+        isJumping = false;
 
     if(input.getButton().left)
     {
@@ -108,7 +113,7 @@ void Character::update(UserInput &input, Tilemap& map, Time &deltaTime)
 
 void Character::handleCollision(Tilemap &map)
 {
-    isOnGround = false;    
+    isOnGround = false;
     int xLeft, xRight, yTop, yBottom;
 
     // Horizontal collisions
@@ -140,7 +145,6 @@ void Character::handleCollision(Tilemap &map)
             movementVector.x = 0;
         }
     }
-
 
     // Vertical collisions
     xLeft = position.x / TILE_SIZE;
@@ -183,8 +187,22 @@ void Character::jump(Time &deltaTime)
 {
     if(isOnGround)
     {
-        movementVector.y = -JUMP_HEIGHT;
+        jumpTime = 0;
+        movementVector.y = - 2 * JUMP_HEIGHT * deltaTime.asSeconds();
+        isJumping = true;
         isOnGround = false;
+    }
+    else if(isJumping)
+    {
+        jumpTime += deltaTime.asSeconds();
+        if(jumpTime < JUMP_LIMIT)
+        {
+            movementVector.y = -JUMP_HEIGHT * jumpTime + ((GRAVITY * jumpTime * jumpTime) / 2);
+        }
+        else
+        {
+            isJumping = false;
+        }
     }
 }
 

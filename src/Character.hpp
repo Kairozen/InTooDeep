@@ -13,30 +13,29 @@ class Character
 {
 public:
 	const int SPRITE_HEIGHT = 16;
-	const int SPRITE_WIDTH = 16;
+	const int SPRITE_WIDTH = 11;
 
 	const int CHARACTER_HEIGHT = 13;
-	const int CHARACTER_WIDTH = 10;
+	const int CHARACTER_WIDTH = 11;
 
 	const int IDLE = 0;
 	const int RUN = 1;
 	const int JUMP = 2;
-	const int ATTACK = 4;
-	const int CLIMB = 5;
+	const int WALL_SLIDE = 3;
 
-	const int NB_FRAMES_IDLE = 4;
+	const int NB_FRAMES_IDLE = 3;
 	const int NB_FRAMES_RUN = 6;
 	const int NB_FRAMES_JUMP = 1;
-	const int NB_FRAMES_ATTACK = 3;
-	const int NB_FRAMES_CLIMB = 3;
+	const int NB_FRAMES_WALL_SLIDE = 1;
 
 	const int ANIMATION_SPEED = 5;
 
 	const int RIGHT = 1;
 	const int LEFT = 2;
 
-	const float GRAVITY = 25.0f;
-	const int JUMP_HEIGHT = 7;
+	const float GRAVITY = 4.0f;
+	const int JUMP_HEIGHT = 50;
+	const float JUMP_LIMIT = 0.1f;
 	const int RUNNING_SPEED = 120;
 	const int MAX_FALLING_SPEED = 15;
 
@@ -44,7 +43,10 @@ public:
 	Sprite characterSprite;
 
 	int lives;
-	
+
+	float jumpTime;
+	bool isJumping;
+
 	// Coordinates
 	Vector2f position;
 

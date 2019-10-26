@@ -17,7 +17,7 @@ Tilemap::Tilemap()
         backgroundSprite.setTexture(backgroundTexture);
     }
     // Loading tileset
-    if(!tilesetTexture.loadFromFile("graphics/tileset.png"))
+    if(!tilesetTexture.loadFromFile("graphics/platformer-tileset.png"))
     {
         throw runtime_error("Problème lors du chargement du tileset");
     }
@@ -85,13 +85,14 @@ void Tilemap::loadLevel(string filename)
     file.close();
     cout << "file ok" << " maplines size " << mapLines.size() << " " << mapLines[0].size() << endl;
 
-    // Load tiles for both layers
+    // Load tiles for all layers
     for(int y = 0; y < MAX_Y; ++y)
     {
         for(int x = 0; x < MAX_X; ++x)
         {
-            collidingTiles[y][x] = mapLines[y][x];
-            backgroundTiles[y][x] = mapLines[y + MAX_Y][x];
+            collectibleTiles[y][x] = mapLines[y][x];
+            collidingTiles[y][x] = mapLines[y + MAX_Y][x];
+            backgroundTiles[y][x] = mapLines[y + MAX_Y + MAX_Y][x];
         }
     }
 }
@@ -107,6 +108,7 @@ void Tilemap::drawMap(RenderWindow &window)
     {
         for(int x = mapStart.x; x < mapEnd.x; ++x)
         {
+            int tileNumCollectible = collectibleTiles[y][x] - 1;
             int tileNumBackground = backgroundTiles[y][x] - 1;
             int tileNumColliding = collidingTiles[y][x] - 1;
             if(tileNumBackground > -1)
@@ -121,6 +123,14 @@ void Tilemap::drawMap(RenderWindow &window)
             {
                 int horizontalPositionOnSprite = (tileNumColliding % TILESET_LINE_SIZE) * TILE_SIZE;
                 int verticalPositionOnSprite = (tileNumColliding / TILESET_LINE_SIZE) * TILE_SIZE;
+                tilesetSprite.setPosition(Vector2f(x * TILE_SIZE, y * TILE_SIZE));
+                tilesetSprite.setTextureRect(IntRect(horizontalPositionOnSprite, verticalPositionOnSprite, TILE_SIZE, TILE_SIZE));
+                window.draw(tilesetSprite);
+            }            
+            if(tileNumCollectible > -1)
+            {
+                int horizontalPositionOnSprite = (tileNumCollectible % TILESET_LINE_SIZE) * TILE_SIZE;
+                int verticalPositionOnSprite = (tileNumCollectible / TILESET_LINE_SIZE) * TILE_SIZE;
                 tilesetSprite.setPosition(Vector2f(x * TILE_SIZE, y * TILE_SIZE));
                 tilesetSprite.setTextureRect(IntRect(horizontalPositionOnSprite, verticalPositionOnSprite, TILE_SIZE, TILE_SIZE));
                 window.draw(tilesetSprite);

@@ -12,8 +12,8 @@
 #define MAX_X 100
 #define MAX_Y 30
 
-#define TILESET_COLUMN_SIZE 9
-#define TILESET_LINE_SIZE 10
+#define TILESET_COLUMN_SIZE 32
+#define TILESET_LINE_SIZE 32
 
 using namespace sf;
 
@@ -39,6 +39,7 @@ class Tilemap
         // Tilemaps
         int backgroundTiles[MAX_Y][MAX_X];
         int collidingTiles[MAX_Y][MAX_X];
+        int collectibleTiles[MAX_Y][MAX_X];
 
         int level;
 
