@@ -12,7 +12,7 @@ all: application
 %.o: %.hpp
 		$(CXX) $(CC_FLAGS) $< -o $@; mv src/*.o obj
 
-application: src/main.o src/Game.o src/Tilemap.o src/Character.o src/UserInput.o
+application: src/main.o src/Game.o src/Tilemap.o src/Character.o src/UserInput.o src/Entity.o src/Monster.o
 		@echo "Building the game"
 		$(CXX) -o application obj/*.o $(LIBS)
 

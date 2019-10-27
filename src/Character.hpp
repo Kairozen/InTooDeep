@@ -6,43 +6,29 @@
 #include <iostream>
 #include "UserInput.hpp"
 #include "Tilemap.hpp"
+#include "Entity.hpp"
 
+#define DELTATIME_MULTIPLICATOR 60
 using namespace sf;
 
-class Character
+class Character : public Entity
 {
 public:
 	const int SPRITE_HEIGHT = 16;
 	const int SPRITE_WIDTH = 11;
-
-	const int CHARACTER_HEIGHT = 13;
-	const int CHARACTER_WIDTH = 11;
 
 	const int IDLE = 0;
 	const int RUN = 1;
 	const int JUMP = 2;
 	const int WALL_SLIDE = 3;
 
-	const int NB_FRAMES_IDLE = 3;
-	const int NB_FRAMES_RUN = 6;
-	const int NB_FRAMES_JUMP = 1;
-	const int NB_FRAMES_WALL_SLIDE = 1;
+	const int ANIMATION_NB_FRAMES[4] = {3, 6, 1, 1};
 
-	const int ANIMATION_SPEED = 5;
-
-	const int RIGHT = 1;
-	const int LEFT = 2;
-
-	const float GRAVITY = 15.0f;
 	const int JUMP_HEIGHT = 50;
 	const float JUMP_LIMIT = 0.1f;
 	const float WALL_JUMP_LIMIT = 0.2f;
 	const int RUNNING_SPEED = 100;
 	const int MAX_FALLING_SPEED = 15;
-	const float MAX_HORIZONTAL_SPEED = 0.5f;
-
-	Texture characterTexture;
-	Sprite characterSprite;
 
 	int lives;
 
@@ -56,26 +42,16 @@ public:
 	bool isSlidingOnWall;
 	bool wallLeft, wallRight;
 
-	// Coordinates
-	Vector2f position;
-
-	// Animation
-	int frameNum, frameMax, frameTimer;
-
 	int state;
-	int direction;
-
-	// Collision
-	bool isOnGround;
-
-	Vector2f movementVector;
 
 	Character();
 	~Character();
 	
 	void initialize();
 
-	void draw(RenderWindow &window);
+	void draw(RenderWindow &window, Time &deltaTime);
+
+	void changeState(int state);
 
 	void update(UserInput &input, Tilemap &map, Time &deltaTime);
 
@@ -92,6 +68,8 @@ public:
 	void moveLeft(Time &deltaTime);
 
 	void idle();
+
+	void kill();
 };
 
 #endif

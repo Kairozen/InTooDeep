@@ -83,7 +83,6 @@ void Tilemap::loadLevel(string filename)
     }
 
     file.close();
-    cout << "file ok" << " maplines size " << mapLines.size() << " " << mapLines[0].size() << endl;
 
     // Load tiles for all layers
     for(int y = 0; y < MAX_Y; ++y)

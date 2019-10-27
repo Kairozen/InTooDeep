@@ -7,17 +7,16 @@ using namespace std;
 
 Character::Character()
 {
-    if(!characterTexture.loadFromFile("graphics/character_spritesheet.png"))
+    if(!texture.loadFromFile("graphics/character_spritesheet.png"))
         throw runtime_error("Erreur lors du chargement du sprite personnage");
-    characterSprite.setTexture(characterTexture);
+    sprite.setTexture(texture);
 
     direction = RIGHT;
     lives = 3;
     
     position = Vector2f(0,0);
     movementVector = Vector2f(0,0);
-    state = IDLE;
-    frameNum = frameTimer = frameMax = 0;
+    changeState(IDLE);
     isOnGround = false;
 }
 
@@ -25,10 +24,7 @@ void Character::initialize()
 {
     lives = 3;
     direction = RIGHT;
-    state = IDLE;
-    frameMax = NB_FRAMES_IDLE;
-    frameNum = 0;
-    frameTimer = ANIMATION_SPEED;
+    changeState(IDLE);
     isOnGround = false;
     position = Vector2f(0,0);
     movementVector = Vector2f(0,0);
@@ -41,37 +37,44 @@ void Character::initialize()
     jumpTime = 0;
 }
 
-void Character::draw(RenderWindow &window)
+void Character::draw(RenderWindow &window, Time &deltaTime)
 {
     // Handling animation
-    if(frameTimer <= 0)
+    if(frameTimer >= ANIMATION_SPEED)
     {
-        frameTimer = ANIMATION_SPEED;
+        frameTimer = 0;
         ++frameNum;
         if(frameNum >= frameMax)
             frameNum = 0;
     }
     else
     {
-        --frameTimer;
+        frameTimer += deltaTime.asSeconds();
     }
 
     // Position of sprite
-    characterSprite.setPosition(position);
+    sprite.setPosition(position);
 
     // Take the rect to draw depending on direction
     if(direction == LEFT)
     {
-        characterSprite.setTextureRect(IntRect((frameNum + 1) * SPRITE_WIDTH, state * SPRITE_HEIGHT, -SPRITE_WIDTH, SPRITE_HEIGHT));
+        sprite.setTextureRect(IntRect((frameNum + 1) * SPRITE_WIDTH, state * SPRITE_HEIGHT, -SPRITE_WIDTH, SPRITE_HEIGHT));
     }
     else
     {
-        characterSprite.setTextureRect(IntRect(frameNum * SPRITE_WIDTH, state * SPRITE_HEIGHT, SPRITE_WIDTH, SPRITE_HEIGHT));
+        sprite.setTextureRect(IntRect(frameNum * SPRITE_WIDTH, state * SPRITE_HEIGHT, SPRITE_WIDTH, SPRITE_HEIGHT));
     }
 
-    window.draw(characterSprite);
+    window.draw(sprite);
 }
 
+void Character::changeState(int state)
+{
+    this->state = state;
+    frameNum = 0;
+    frameTimer = 0;
+    frameMax = ANIMATION_NB_FRAMES[state];
+}
 
 void Character::update(UserInput &input, Tilemap& map, Time &deltaTime)
 {
@@ -84,8 +87,6 @@ void Character::update(UserInput &input, Tilemap& map, Time &deltaTime)
 
     if(movementVector.y > MAX_FALLING_SPEED)
         movementVector.y = MAX_FALLING_SPEED;
-    
-    cout << "grav:" << movementVector.y << endl;
 
     if(isJumping && !input.getButton().jump)
         isJumping = false;
@@ -125,26 +126,22 @@ void Character::update(UserInput &input, Tilemap& map, Time &deltaTime)
         wallJumpRight(deltaTime);
 
     // If the player is not on the ground, it's in the air so switch to jump animation
-    if(!isOnGround)
+    if(!isOnGround && state != JUMP)
     {
-        if(state != JUMP)
-        {
-            state = JUMP;
-            frameNum = 0;
-            frameTimer = ANIMATION_SPEED;
-            frameMax = NB_FRAMES_JUMP;
-        }
+        changeState(JUMP);
     }
 
     handleCollision(map);
 
+    collidingBox = FloatRect(position.x, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
+
     if(wallRight && input.getButton().right)
     {
-        state = WALL_SLIDE;
+        changeState(WALL_SLIDE);
     }
     if(wallLeft && input.getButton().left)
     {
-        state = WALL_SLIDE;
+        changeState(WALL_SLIDE);
     }
 }
 
@@ -160,8 +157,6 @@ void Character::handleCollision(Tilemap &map)
     xRight = (position.x + movementVector.x + SPRITE_WIDTH) / TILE_SIZE;
     yTop = position.y / TILE_SIZE;
     yBottom = (position.y + SPRITE_HEIGHT - 1) / TILE_SIZE;
-
-    //cout << "x: " << position.x << " y: " << position.y << " move x: " << movementVector.x << " move y: " << movementVector.y << " xleft: " << xLeft << " xright: " << xRight << " ytop: " << yTop << " ybttom: " << yBottom << " ";
 
     // Moving to the left
     if(movementVector.x < 0)
@@ -207,7 +202,6 @@ void Character::handleCollision(Tilemap &map)
     {
         if(map.collidingTiles[yTop][xLeft] || map.collidingTiles[yTop][xRight])
         {
-            cout << "BONK LE PLAFOND" << endl;
             position.y = (yTop + 1) * TILE_SIZE;
             movementVector.y = 0;
         }
@@ -217,7 +211,7 @@ void Character::handleCollision(Tilemap &map)
 
     if(position.y > MAX_Y * TILE_SIZE)
     {
-        // We should die here
+        kill();
         cout << "DEAD BOI" << endl;
     }
 }
@@ -235,8 +229,8 @@ void Character::wallJumpLeft(Time &deltaTime)
         wallJumpTime += deltaTime.asSeconds();
         tmpWallJumpTime = wallJumpTime / 3;
         movementVector.x = RUNNING_SPEED * 1.5 * deltaTime.asSeconds();
-        movementVector.y = -JUMP_HEIGHT * tmpWallJumpTime;
-        state = JUMP;
+        movementVector.y = (-JUMP_HEIGHT * tmpWallJumpTime + (tmpWallJumpTime * tmpWallJumpTime / 2)) * deltaTime.asSeconds() * DELTATIME_MULTIPLICATOR;
+        changeState(JUMP);
         isSlidingOnWall = false;
     }
     else
@@ -258,8 +252,8 @@ void Character::wallJumpRight(Time &deltaTime)
         wallJumpTime += deltaTime.asSeconds();
         tmpWallJumpTime = wallJumpTime / 3;
         movementVector.x = -RUNNING_SPEED * 1.5 * deltaTime.asSeconds();
-        movementVector.y = -JUMP_HEIGHT * tmpWallJumpTime;
-        state = JUMP;
+        movementVector.y = (-JUMP_HEIGHT * tmpWallJumpTime + (tmpWallJumpTime * tmpWallJumpTime / 2)) * deltaTime.asSeconds() * DELTATIME_MULTIPLICATOR;
+        changeState(JUMP);
         isSlidingOnWall = false;
     }
     else
@@ -280,9 +274,9 @@ void Character::jump(Time &deltaTime)
     else if(isJumping)
     {
         jumpTime += deltaTime.asSeconds();
-        if(jumpTime < JUMP_LIMIT)
+        if(jumpTime <= JUMP_LIMIT)
         {
-            movementVector.y = -JUMP_HEIGHT * jumpTime + ((GRAVITY * jumpTime * jumpTime) / 2);
+            movementVector.y = (-JUMP_HEIGHT * jumpTime + ((GRAVITY * jumpTime * jumpTime) / 2)) * deltaTime.asSeconds() * DELTATIME_MULTIPLICATOR;
         }
         else
         {
@@ -297,10 +291,7 @@ void Character::moveRight(Time &deltaTime)
     movementVector.x += RUNNING_SPEED * deltaTime.asSeconds();
     if(state != RUN && isOnGround)
     {
-        state = RUN;
-        frameNum = 0;
-        frameTimer = ANIMATION_SPEED;
-        frameMax = NB_FRAMES_RUN;
+        changeState(RUN);
     }
 }
 
@@ -310,10 +301,7 @@ void Character::moveLeft(Time &deltaTime)
     movementVector.x -= RUNNING_SPEED * deltaTime.asSeconds();
     if(state != RUN && isOnGround)
     {
-        state = RUN;
-        frameNum = 0;
-        frameTimer = ANIMATION_SPEED;
-        frameMax = NB_FRAMES_RUN;
+        changeState(RUN);
     }
 }
 
@@ -321,11 +309,13 @@ void Character::idle()
 {
     if(state != IDLE)
     {
-        state = IDLE;
-        frameNum = 0;
-        frameTimer = ANIMATION_SPEED;
-        frameMax = NB_FRAMES_IDLE;
+        changeState(IDLE);
     }
+}
+
+void Character::kill()
+{
+    cout << "DEAD BOI" << endl;
 }
 
 Character::~Character() {}

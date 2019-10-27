@@ -7,8 +7,9 @@ Game::Game() : window(VideoMode(WINDOW_WIDTH,WINDOW_HEIGHT), "Game")
 {
     window.setFramerateLimit(60);
     userInput = UserInput();
-    tilemap.level = 1;
-    tilemap.changeLevel();
+    tilemap.level = 0;
+    monsters = std::vector<Monster*>();
+    nextLevel();
     font.loadFromFile("fonts/Bubblegum.ttf");
     text.setFont(font);
     text.setFillColor(Color::Black);
@@ -16,6 +17,12 @@ Game::Game() : window(VideoMode(WINDOW_WIDTH,WINDOW_HEIGHT), "Game")
     camera = window.getView();
     camera.zoom(CAMERA_ZOOM);
     character.initialize();
+}
+
+Game::~Game()
+{
+    for(auto& monster : monsters)
+        delete monster;
 }
 
 void Game::moveCamera()
@@ -42,9 +49,25 @@ void Game::moveCamera()
 void Game::update(Time &deltaTime)
 {
     character.update(userInput, tilemap, deltaTime);
+    for(size_t i = 0; i < monsters.size(); ++i)
+    {
+        monsters[i]->update(tilemap, deltaTime);
+        int collisionStatus = monsters[i]->collisionWithPlayer(character);
+        if(collisionStatus == 1)
+        {
+            Monster* tmp = monsters[i];
+            monsters.erase(monsters.begin() + i);
+            delete tmp;
+            character.movementVector.y = - MONSTER_REBOUND - character.GRAVITY * deltaTime.asSeconds();
+        }
+        else if(collisionStatus == 2)
+        {
+            character.kill();
+        }
+    }
 }
 
-void Game::renderGraphics() 
+void Game::renderGraphics(Time &deltaTime) 
 {
     window.setView(camera);
     window.clear();
@@ -52,7 +75,9 @@ void Game::renderGraphics()
     tilemap.drawMap(window);
     moveCamera();
     
-    character.draw(window);
+    for(auto& monster: monsters)
+        monster->draw(window, deltaTime);
+    character.draw(window, deltaTime);
     window.setView(window.getDefaultView());
     window.draw(text);
     window.display();
@@ -74,10 +99,31 @@ void Game::run()
         //std::cout << "FPS : " << 1.0 / deltaTime.asSeconds() << std::endl;
         processEvents();
         update(deltaTime);
-        renderGraphics();
+        renderGraphics(deltaTime);
     }
 }
 
-Game::~Game() {}
+
+void Game::nextLevel()
+{
+    tilemap.level++;
+    tilemap.changeLevel();
+    initializeMonsters();
+}
+
+void Game::initializeMonsters()
+{
+    for(auto& monster: monsters)
+        delete monster;
+    monsters.clear();
+    for(int y = 0; y < MAX_Y; ++y)
+        for (int x = 0; x < MAX_X; ++x)
+            if(tilemap.collidingTiles[y][x] == MONSTER_TILE)
+            {
+                tilemap.collidingTiles[y][x] = 0;
+                Monster *monster = new Monster(Vector2f(x * TILE_SIZE, y * TILE_SIZE));
+                monsters.push_back(monster);
+            }
+}
 
 #endif
