@@ -35,6 +35,7 @@ void Character::initialize()
     isWallJumpingLeft = false;
     isWallJumpingRight = false;
     jumpTime = 0;
+    collidingBox = FloatRect(position.x, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
 }
 
 void Character::draw(RenderWindow &window, Time &deltaTime)
@@ -65,6 +66,11 @@ void Character::draw(RenderWindow &window, Time &deltaTime)
         sprite.setTextureRect(IntRect(frameNum * SPRITE_WIDTH, state * SPRITE_HEIGHT, SPRITE_WIDTH, SPRITE_HEIGHT));
     }
 
+    // RectangleShape shape;
+    // shape.setFillColor(Color::Blue);
+    // shape.setPosition(Vector2f(collidingBox.left, collidingBox.top));
+    // shape.setSize(Vector2f(collidingBox.width, collidingBox.height));
+    // window.draw(shape);
     window.draw(sprite);
 }
 
@@ -133,7 +139,8 @@ void Character::update(UserInput &input, Tilemap& map, Time &deltaTime)
 
     handleCollision(map);
 
-    collidingBox = FloatRect(position.x, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
+    collidingBox.left = position.x;
+    collidingBox.top = position.y;
 
     if(wallRight && input.getButton().right)
     {

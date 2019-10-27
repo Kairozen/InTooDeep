@@ -28,7 +28,7 @@ public:
 	const float JUMP_LIMIT = 0.1f;
 	const float WALL_JUMP_LIMIT = 0.2f;
 	const int RUNNING_SPEED = 100;
-	const int MAX_FALLING_SPEED = 15;
+	const int MAX_FALLING_SPEED = 9;
 
 	int lives;
 

@@ -113,6 +113,7 @@ void Game::nextLevel()
 
 void Game::initializeMonsters()
 {
+    srand(time(nullptr));
     for(auto& monster: monsters)
         delete monster;
     monsters.clear();
@@ -122,6 +123,7 @@ void Game::initializeMonsters()
             {
                 tilemap.collidingTiles[y][x] = 0;
                 Monster *monster = new Monster(Vector2f(x * TILE_SIZE, y * TILE_SIZE));
+                monster->color = rand() % 3;
                 monsters.push_back(monster);
             }
 }

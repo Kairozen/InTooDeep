@@ -41,12 +41,18 @@ void Monster::draw(RenderWindow &window, Time &deltaTime)
     // Take the rect to draw depending on direction
     if(direction == LEFT)
     {
-        sprite.setTextureRect(IntRect((frameNum + 1) * SPRITE_WIDTH, 1 * SPRITE_HEIGHT, -SPRITE_WIDTH, SPRITE_HEIGHT));
+        sprite.setTextureRect(IntRect((frameNum + 1) * SPRITE_WIDTH, color * SPRITE_HEIGHT, -SPRITE_WIDTH, SPRITE_HEIGHT));
     }
     else
     {
-        sprite.setTextureRect(IntRect(frameNum * SPRITE_WIDTH, 1 * SPRITE_HEIGHT, SPRITE_WIDTH, SPRITE_HEIGHT));
+        sprite.setTextureRect(IntRect(frameNum * SPRITE_WIDTH, color * SPRITE_HEIGHT, SPRITE_WIDTH, SPRITE_HEIGHT));
     }
+
+    // RectangleShape shape;
+    // shape.setFillColor(Color::Blue);
+    // shape.setPosition(Vector2f(collidingBox.left, collidingBox.top));
+    // shape.setSize(Vector2f(collidingBox.width, collidingBox.height));
+    // window.draw(shape);
 
     window.draw(sprite);
 }
@@ -71,7 +77,7 @@ int Monster::collisionWithPlayer(Character &character)
 {
     if(collidingBox.intersects(character.collidingBox))
     {
-        if(character.collidingBox.top + character.collidingBox.height <= collidingBox.top + 2)
+        if(character.collidingBox.top + character.collidingBox.height <= collidingBox.top + collidingBox.height / 2)
             return 1;
         return 2;
     }

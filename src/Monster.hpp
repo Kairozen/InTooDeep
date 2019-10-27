@@ -23,6 +23,8 @@ public:
     
     const int RUNNING_SPEED = 80;
 
+    int color = 0;
+
     Monster(Vector2f position);
 
     void initialize();
