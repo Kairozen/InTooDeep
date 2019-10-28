@@ -9,6 +9,7 @@ Game::Game() : window(VideoMode(WINDOW_WIDTH,WINDOW_HEIGHT), "Game")
     userInput = UserInput();
     tilemap.level = 0;
     monsters = std::vector<Monster*>();
+    audio.playBackgroundMusic();
     nextLevel();
     font.loadFromFile("fonts/Bubblegum.ttf");
     text.setFont(font);
@@ -48,7 +49,13 @@ void Game::moveCamera()
 
 void Game::update(Time &deltaTime)
 {
-    character.update(userInput, tilemap, deltaTime);
+    // Update character
+    character.update(userInput, audio, tilemap, deltaTime);
+    if(character.isDead && character.deathTimer <= 0)
+    {
+        resetLevel();
+    }
+    // Update monsters and collision with player
     for(size_t i = 0; i < monsters.size(); ++i)
     {
         monsters[i]->update(tilemap, deltaTime);
@@ -59,10 +66,11 @@ void Game::update(Time &deltaTime)
             monsters.erase(monsters.begin() + i);
             delete tmp;
             character.movementVector.y = - MONSTER_REBOUND - character.GRAVITY * deltaTime.asSeconds();
+            audio.playStompSound();
         }
         else if(collisionStatus == 2)
         {
-            character.kill();
+            character.kill(audio);
         }
     }
 }
@@ -107,6 +115,14 @@ void Game::run()
 void Game::nextLevel()
 {
     tilemap.level++;
+    tilemap.changeLevel();
+    initializeMonsters();
+    character.initialize();
+}
+
+void Game::resetLevel()
+{
+    character.initialize();
     tilemap.changeLevel();
     initializeMonsters();
 }

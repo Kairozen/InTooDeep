@@ -18,6 +18,8 @@ Character::Character()
     movementVector = Vector2f(0,0);
     changeState(IDLE);
     isOnGround = false;
+    isDead = false;
+    deathTimer = 0;
 }
 
 void Character::initialize()
@@ -34,38 +36,54 @@ void Character::initialize()
     wallRight = false;
     isWallJumpingLeft = false;
     isWallJumpingRight = false;
+    sprite.setRotation(0);
+    sprite.setPosition(0,0);
+    isDead = false;
+    deathTimer = 0;
     jumpTime = 0;
     collidingBox = FloatRect(position.x, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
 }
 
 void Character::draw(RenderWindow &window, Time &deltaTime)
 {
-    // Handling animation
-    if(frameTimer >= ANIMATION_SPEED)
+    if(!isDead)
     {
-        frameTimer = 0;
-        ++frameNum;
-        if(frameNum >= frameMax)
-            frameNum = 0;
+        // Handling animation
+        if(frameTimer >= ANIMATION_SPEED)
+        {
+            frameTimer = 0;
+            ++frameNum;
+            if(frameNum >= frameMax)
+                frameNum = 0;
+        }
+        else
+        {
+            frameTimer += deltaTime.asSeconds();
+        }
+
+        // Position of sprite
+        sprite.setPosition(position);
+
+        // Take the rect to draw depending on direction
+        if(direction == LEFT)
+        {
+            sprite.setTextureRect(IntRect((frameNum + 1) * SPRITE_WIDTH, state * SPRITE_HEIGHT, -SPRITE_WIDTH, SPRITE_HEIGHT));
+        }
+        else
+        {
+            sprite.setTextureRect(IntRect(frameNum * SPRITE_WIDTH, state * SPRITE_HEIGHT, SPRITE_WIDTH, SPRITE_HEIGHT));
+        }
     }
     else
     {
-        frameTimer += deltaTime.asSeconds();
+        if(sprite.getRotation() < 90)
+        {
+            sprite.rotate(90 * 3 * deltaTime.asSeconds());
+            if(sprite.getRotation() > 45)
+                sprite.move(SPRITE_HEIGHT * 4 * deltaTime.asSeconds(), SPRITE_HEIGHT * 3 * deltaTime.asSeconds());
+        }
     }
-
-    // Position of sprite
-    sprite.setPosition(position);
-
-    // Take the rect to draw depending on direction
-    if(direction == LEFT)
-    {
-        sprite.setTextureRect(IntRect((frameNum + 1) * SPRITE_WIDTH, state * SPRITE_HEIGHT, -SPRITE_WIDTH, SPRITE_HEIGHT));
-    }
-    else
-    {
-        sprite.setTextureRect(IntRect(frameNum * SPRITE_WIDTH, state * SPRITE_HEIGHT, SPRITE_WIDTH, SPRITE_HEIGHT));
-    }
-
+    
     // RectangleShape shape;
     // shape.setFillColor(Color::Blue);
     // shape.setPosition(Vector2f(collidingBox.left, collidingBox.top));
@@ -82,74 +100,82 @@ void Character::changeState(int state)
     frameMax = ANIMATION_NB_FRAMES[state];
 }
 
-void Character::update(UserInput &input, Tilemap& map, Time &deltaTime)
+void Character::update(UserInput &input, Audio &audio, Tilemap& map, Time &deltaTime)
 {
-    movementVector.x = 0;
-    movementVector.y += GRAVITY * deltaTime.asSeconds();
-    
-    // Slow down the falling if we're on a wall and going down
-    if(state == WALL_SLIDE)
-        movementVector.y *= 0.8;
-
-    if(movementVector.y > MAX_FALLING_SPEED)
-        movementVector.y = MAX_FALLING_SPEED;
-
-    if(isJumping && !input.getButton().jump)
-        isJumping = false;
-
-    if(input.getButton().left)
+    if(!isDead)
     {
-        moveLeft(deltaTime);
-    }
-    if(input.getButton().right)
-    {
-        moveRight(deltaTime);
-    }
-    if(input.getButton().jump)
-    {
-        if(wallLeft && state == WALL_SLIDE && movementVector.y > 0 && !isOnGround && !isWallJumpingLeft)
-        {
-            wallJumpLeft(deltaTime);
-        }
-        else if(wallRight && state == WALL_SLIDE && movementVector.y > 0 && !isOnGround && !isWallJumpingRight)
-        {
-            wallJumpRight(deltaTime);
-        }
-        else
-        {
-            jump(deltaTime);
-        }
+        movementVector.x = 0;
+        movementVector.y += GRAVITY * deltaTime.asSeconds();
         
-    }
-    if(!input.getButton().left && !input.getButton().right && isOnGround)
-    {
-        idle();
-    }
-    // Continue walljump if possible
-    if(isWallJumpingLeft)
-        wallJumpLeft(deltaTime);
-    if(isWallJumpingRight)
-        wallJumpRight(deltaTime);
+        // Slow down the falling if we're on a wall and going down
+        if(state == WALL_SLIDE)
+            movementVector.y *= 0.8;
 
-    // If the player is not on the ground, it's in the air so switch to jump animation
-    if(!isOnGround && state != JUMP)
-    {
-        changeState(JUMP);
-    }
+        if(movementVector.y > MAX_FALLING_SPEED)
+            movementVector.y = MAX_FALLING_SPEED;
 
-    handleCollision(map);
+        if(isJumping && !input.getButton().jump)
+            isJumping = false;
 
-    collidingBox.left = position.x;
-    collidingBox.top = position.y;
+        if(input.getButton().left)
+        {
+            moveLeft(deltaTime);
+        }
+        if(input.getButton().right)
+        {
+            moveRight(deltaTime);
+        }
+        if(input.getButton().jump)
+        {
+            if(wallLeft && state == WALL_SLIDE && movementVector.y > 0 && !isOnGround && !isWallJumpingLeft)
+            {
+                wallJumpLeft(deltaTime, audio);
+            }
+            else if(wallRight && state == WALL_SLIDE && movementVector.y > 0 && !isOnGround && !isWallJumpingRight)
+            {
+                wallJumpRight(deltaTime, audio);
+            }
+            else
+            {
+                jump(deltaTime, audio);
+            }
+            
+        }
+        if(!input.getButton().left && !input.getButton().right && isOnGround)
+        {
+            idle();
+        }
+        // Continue walljump if possible
+        if(isWallJumpingLeft)
+            wallJumpLeft(deltaTime, audio);
+        if(isWallJumpingRight)
+            wallJumpRight(deltaTime, audio);
 
-    if(wallRight && input.getButton().right)
-    {
-        changeState(WALL_SLIDE);
+        // If the player is not on the ground, it's in the air so switch to jump animation
+        if(!isOnGround && state != JUMP)
+        {
+            changeState(JUMP);
+        }
+
+        handleCollision(map);
+
+        collidingBox.left = position.x;
+        collidingBox.top = position.y;
+
+        if(wallRight && input.getButton().right)
+        {
+            changeState(WALL_SLIDE);
+        }
+        if(wallLeft && input.getButton().left)
+        {
+            changeState(WALL_SLIDE);
+        }
     }
-    if(wallLeft && input.getButton().left)
+    else
     {
-        changeState(WALL_SLIDE);
+        deathTimer -= deltaTime.asSeconds();
     }
+    
 }
 
 void Character::handleCollision(Tilemap &map)
@@ -223,12 +249,13 @@ void Character::handleCollision(Tilemap &map)
     }
 }
 
-void Character::wallJumpLeft(Time &deltaTime)
+void Character::wallJumpLeft(Time &deltaTime, Audio &audio)
 {
     if(!isWallJumpingLeft)
     {
         wallJumpTime = 0;
         isWallJumpingLeft = true;
+        audio.playWalljumpSound();
     }
     if(wallJumpTime < WALL_JUMP_LIMIT)
     {
@@ -246,12 +273,13 @@ void Character::wallJumpLeft(Time &deltaTime)
     }
 }
 
-void Character::wallJumpRight(Time &deltaTime)
+void Character::wallJumpRight(Time &deltaTime, Audio &audio)
 {
     if(!isWallJumpingRight)
     {
         wallJumpTime = 0;
         isWallJumpingRight = true;
+        audio.playWalljumpSound();
     }
     if(wallJumpTime < WALL_JUMP_LIMIT)
     {
@@ -269,10 +297,11 @@ void Character::wallJumpRight(Time &deltaTime)
     }
 }
 
-void Character::jump(Time &deltaTime)
+void Character::jump(Time &deltaTime, Audio &audio)
 {
     if(isOnGround)
     {
+        audio.playJumpSound();
         jumpTime = 0;
         movementVector.y = - 2 * JUMP_HEIGHT * deltaTime.asSeconds();
         isJumping = true;
@@ -322,7 +351,21 @@ void Character::idle()
 
 void Character::kill()
 {
-    cout << "DEAD BOI" << endl;
+    if(!isDead)
+    {
+        isDead = true;
+        deathTimer =  DEATH_TIMER;
+    }
+}
+
+void Character::kill(Audio &audio)
+{
+    if(!isDead)
+    {
+        audio.playKillSound();
+        isDead = true;
+        deathTimer =  DEATH_TIMER;
+    }
 }
 
 Character::~Character() {}

@@ -11,6 +11,7 @@
 #include "Tilemap.hpp"
 #include "Monster.hpp"
 #include "UserInput.hpp"
+#include "Audio.hpp"
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 480
@@ -32,6 +33,7 @@ private:
 	UserInput		userInput;
 	Text			text;
 	Font 			font;
+	Audio			audio;
 	std::vector<Monster*> monsters;
 public:
 	Game();
@@ -49,6 +51,8 @@ public:
 	void nextLevel();
 
 	void initializeMonsters();
+
+	void resetLevel();
 
 	~Game();
 };

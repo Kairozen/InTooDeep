@@ -7,8 +7,11 @@
 #include "UserInput.hpp"
 #include "Tilemap.hpp"
 #include "Entity.hpp"
+#include "Audio.hpp"
 
 #define DELTATIME_MULTIPLICATOR 60
+#define DEATH_TIMER 2
+#define SPIKES 402
 using namespace sf;
 
 class Character : public Entity
@@ -42,6 +45,9 @@ public:
 	bool isSlidingOnWall;
 	bool wallLeft, wallRight;
 
+	bool isDead;
+	float deathTimer;
+
 	int state;
 
 	Character();
@@ -53,15 +59,15 @@ public:
 
 	void changeState(int state);
 
-	void update(UserInput &input, Tilemap &map, Time &deltaTime);
+	void update(UserInput &input, Audio &audio, Tilemap &map, Time &deltaTime);
 
 	void handleCollision(Tilemap &map);
 
-	void wallJumpLeft(Time &deltaTime);
+	void wallJumpLeft(Time &deltaTime, Audio &audio);
 	
-	void wallJumpRight(Time &deltaTime);
+	void wallJumpRight(Time &deltaTime, Audio &audio);
 
-	void jump(Time &deltaTime);
+	void jump(Time &deltaTime, Audio &audio);
 
 	void moveRight(Time &deltaTime);
 
@@ -70,6 +76,8 @@ public:
 	void idle();
 
 	void kill();
+
+	void kill(Audio &audio);
 };
 
 #endif
