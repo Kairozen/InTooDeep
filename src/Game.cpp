@@ -17,6 +17,7 @@ Game::Game() : window(VideoMode(WINDOW_WIDTH,WINDOW_HEIGHT), "Game")
     text.setCharacterSize(15);
     camera = window.getView();
     camera.zoom(CAMERA_ZOOM);
+    character.audio = &audio;
     character.initialize();
 }
 
@@ -70,7 +71,7 @@ void Game::update(Time &deltaTime)
         }
         else if(collisionStatus == 2)
         {
-            character.kill(audio);
+            character.kill();
         }
     }
 }

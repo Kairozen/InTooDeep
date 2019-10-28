@@ -11,7 +11,8 @@
 
 #define DELTATIME_MULTIPLICATOR 60
 #define DEATH_TIMER 2
-#define SPIKES 402
+#define SPIKES 1021
+
 using namespace sf;
 
 class Character : public Entity
@@ -50,6 +51,8 @@ public:
 
 	int state;
 
+	Audio *audio;
+
 	Character();
 	~Character();
 	
@@ -76,8 +79,6 @@ public:
 	void idle();
 
 	void kill();
-
-	void kill(Audio &audio);
 };
 
 #endif

@@ -38,6 +38,7 @@ void Character::initialize()
     isWallJumpingRight = false;
     sprite.setRotation(0);
     sprite.setPosition(0,0);
+    sprite.setOrigin(0,0);
     isDead = false;
     deathTimer = 0;
     jumpTime = 0;
@@ -61,9 +62,6 @@ void Character::draw(RenderWindow &window, Time &deltaTime)
             frameTimer += deltaTime.asSeconds();
         }
 
-        // Position of sprite
-        sprite.setPosition(position);
-
         // Take the rect to draw depending on direction
         if(direction == LEFT)
         {
@@ -79,10 +77,13 @@ void Character::draw(RenderWindow &window, Time &deltaTime)
         if(sprite.getRotation() < 90)
         {
             sprite.rotate(90 * 3 * deltaTime.asSeconds());
-            if(sprite.getRotation() > 45)
-                sprite.move(SPRITE_HEIGHT * 4 * deltaTime.asSeconds(), SPRITE_HEIGHT * 3 * deltaTime.asSeconds());
         }
     }
+
+    // Position of sprite
+    sprite.setPosition(position);
+    if(isDead)
+        sprite.move(sprite.getRotation() / 1.5 * SPRITE_HEIGHT * deltaTime.asSeconds(), sprite.getRotation() / 4 * SPRITE_HEIGHT * deltaTime.asSeconds());
     
     // RectangleShape shape;
     // shape.setFillColor(Color::Blue);
@@ -102,11 +103,10 @@ void Character::changeState(int state)
 
 void Character::update(UserInput &input, Audio &audio, Tilemap& map, Time &deltaTime)
 {
+    movementVector.x = 0;
+    movementVector.y += GRAVITY * deltaTime.asSeconds();
     if(!isDead)
     {
-        movementVector.x = 0;
-        movementVector.y += GRAVITY * deltaTime.asSeconds();
-        
         // Slow down the falling if we're on a wall and going down
         if(state == WALL_SLIDE)
             movementVector.y *= 0.8;
@@ -157,23 +157,24 @@ void Character::update(UserInput &input, Audio &audio, Tilemap& map, Time &delta
             changeState(JUMP);
         }
 
-        handleCollision(map);
-
-        collidingBox.left = position.x;
-        collidingBox.top = position.y;
-
-        if(wallRight && input.getButton().right)
-        {
-            changeState(WALL_SLIDE);
-        }
-        if(wallLeft && input.getButton().left)
-        {
-            changeState(WALL_SLIDE);
-        }
     }
     else
     {
         deathTimer -= deltaTime.asSeconds();
+    }
+
+    handleCollision(map);
+
+    collidingBox.left = position.x;
+    collidingBox.top = position.y;
+
+    if(wallRight && input.getButton().right)
+    {
+        changeState(WALL_SLIDE);
+    }
+    if(wallLeft && input.getButton().left)
+    {
+        changeState(WALL_SLIDE);
     }
     
 }
@@ -194,6 +195,7 @@ void Character::handleCollision(Tilemap &map)
     // Moving to the left
     if(movementVector.x < 0)
     {
+        // Collision with colliding tiles
         if(map.collidingTiles[yTop][xLeft] || map.collidingTiles[yBottom][xLeft])
         {
             position.x = (xLeft + 1) * TILE_SIZE;
@@ -204,6 +206,7 @@ void Character::handleCollision(Tilemap &map)
     // Moving to the right
     if(movementVector.x > 0)
     {    
+        // Collision with colliding tiles
         if(map.collidingTiles[yTop][xRight] || map.collidingTiles[yBottom][xRight])
         {
             position.x = xRight * TILE_SIZE;
@@ -222,6 +225,7 @@ void Character::handleCollision(Tilemap &map)
     // Moving towards bottom
     if(movementVector.y > 0)
     {
+        // Collision with colliding tiles
         if(map.collidingTiles[yBottom][xLeft] || map.collidingTiles[yBottom][xRight])
         {
             position.y = yBottom * TILE_SIZE;
@@ -233,6 +237,7 @@ void Character::handleCollision(Tilemap &map)
     // Moving towards top
     if(movementVector.y < 0)
     {
+        // Collision with colliding tiles
         if(map.collidingTiles[yTop][xLeft] || map.collidingTiles[yTop][xRight])
         {
             position.y = (yTop + 1) * TILE_SIZE;
@@ -242,10 +247,18 @@ void Character::handleCollision(Tilemap &map)
 
     position += movementVector;
 
-    if(position.y > MAX_Y * TILE_SIZE)
+    // New position
+    xLeft = position.x / TILE_SIZE;
+    xRight = (position.x + SPRITE_WIDTH) / TILE_SIZE;
+    yTop = position.y / TILE_SIZE;
+    yBottom = (position.y + SPRITE_HEIGHT) / TILE_SIZE;
+    // Collision with spikes
+    if(map.collectibleTiles[yTop][xLeft] >= SPIKES || 
+        map.collectibleTiles[yTop][xRight] >= SPIKES ||
+        map.collectibleTiles[yBottom][xLeft] >= SPIKES ||
+        map.collectibleTiles[yBottom][xRight] >= SPIKES)
     {
         kill();
-        cout << "DEAD BOI" << endl;
     }
 }
 
@@ -353,16 +366,8 @@ void Character::kill()
 {
     if(!isDead)
     {
-        isDead = true;
-        deathTimer =  DEATH_TIMER;
-    }
-}
-
-void Character::kill(Audio &audio)
-{
-    if(!isDead)
-    {
-        audio.playKillSound();
+        if(audio)
+            audio->playKillSound();
         isDead = true;
         deathTimer =  DEATH_TIMER;
     }
