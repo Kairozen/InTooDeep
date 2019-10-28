@@ -12,6 +12,16 @@
 #define DELTATIME_MULTIPLICATOR 60
 #define DEATH_TIMER 2
 #define SPIKES 1021
+#define DASH_TIME 0.25
+
+#define UP 1
+#define UP_RIGHT 2
+#define RIGHT 3
+#define BOTTOM_RIGHT 4
+#define BOTTOM 5
+#define BOTTOM_LEFT 6
+#define LEFT 7
+#define UP_LEFT 8
 
 using namespace sf;
 
@@ -34,6 +44,8 @@ public:
 	const int RUNNING_SPEED = 100;
 	const int MAX_FALLING_SPEED = 9;
 
+	const int DASH_POWER = 220;
+
 	int lives;
 
 	float jumpTime;
@@ -48,6 +60,10 @@ public:
 
 	bool isDead;
 	float deathTimer;
+
+	bool canDash, isDashing;
+	int dashDirection;
+	float dashTime;
 
 	int state;
 
@@ -79,6 +95,8 @@ public:
 	void idle();
 
 	void kill();
+
+	void startDashing(UserInput &input);
 };
 
 #endif

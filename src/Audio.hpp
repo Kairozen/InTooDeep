@@ -15,6 +15,7 @@ public:
     Sound walljumpSound;
     Sound stompSound;
     Sound killSound;
+    Sound dashSound;
     SoundBuffer coinSoundB;
     SoundBuffer stageClearSoundB;
     SoundBuffer bumpSoundB;
@@ -22,6 +23,7 @@ public:
     SoundBuffer walljumpSoundB;
     SoundBuffer stompSoundB;
     SoundBuffer killSoundB;
+    SoundBuffer dashSoundB;
 
     Audio();
 
@@ -38,6 +40,8 @@ public:
     void playStompSound();
 
     void playKillSound();
+
+    void playDashSound();
 };
 
 #endif

@@ -42,11 +42,20 @@ void Character::initialize()
     isDead = false;
     deathTimer = 0;
     jumpTime = 0;
+    isDashing = false;
+    canDash = true;
     collidingBox = FloatRect(position.x, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
 }
 
 void Character::draw(RenderWindow &window, Time &deltaTime)
 {
+    if(isDashing)
+    {
+        Sprite copy = sprite;
+        Color color = Color(0,0,0, 127);
+        copy.setColor(color);
+        window.draw(copy);
+    }
     if(!isDead)
     {
         // Handling animation
@@ -83,7 +92,7 @@ void Character::draw(RenderWindow &window, Time &deltaTime)
     // Position of sprite
     sprite.setPosition(position);
     if(isDead)
-        sprite.move(sprite.getRotation() / 1.5 * SPRITE_HEIGHT * deltaTime.asSeconds(), sprite.getRotation() / 4 * SPRITE_HEIGHT * deltaTime.asSeconds());
+        sprite.move(sprite.getRotation() / 5, sprite.getRotation() / 12);
     
     // RectangleShape shape;
     // shape.setFillColor(Color::Blue);
@@ -103,60 +112,113 @@ void Character::changeState(int state)
 
 void Character::update(UserInput &input, Audio &audio, Tilemap& map, Time &deltaTime)
 {
-    movementVector.x = 0;
-    movementVector.y += GRAVITY * deltaTime.asSeconds();
+    if(!isDashing)
+    {
+        movementVector.x = 0;
+        movementVector.y += GRAVITY * deltaTime.asSeconds();
+    }
     if(!isDead)
     {
-        // Slow down the falling if we're on a wall and going down
-        if(state == WALL_SLIDE)
-            movementVector.y *= 0.8;
-
-        if(movementVector.y > MAX_FALLING_SPEED)
-            movementVector.y = MAX_FALLING_SPEED;
-
-        if(isJumping && !input.getButton().jump)
-            isJumping = false;
-
-        if(input.getButton().left)
+        if(input.getButton().dash)
         {
-            moveLeft(deltaTime);
+            startDashing(input);
         }
-        if(input.getButton().right)
+        if(!isDashing)
         {
-            moveRight(deltaTime);
-        }
-        if(input.getButton().jump)
-        {
-            if(wallLeft && state == WALL_SLIDE && movementVector.y > 0 && !isOnGround && !isWallJumpingLeft)
+            // Slow down the falling if we're on a wall and going down
+            if(state == WALL_SLIDE)
+                movementVector.y *= 0.8;
+
+            if(movementVector.y > MAX_FALLING_SPEED)
+                movementVector.y = MAX_FALLING_SPEED;
+
+            if(isJumping && !input.getButton().jump)
+                isJumping = false;
+
+            if(input.getButton().left)
             {
+                moveLeft(deltaTime);
+            }
+            if(input.getButton().right)
+            {
+                moveRight(deltaTime);
+            }
+            if(input.getButton().jump)
+            {
+                if(wallLeft && state == WALL_SLIDE && movementVector.y > 0 && !isOnGround && !isWallJumpingLeft)
+                {
+                    wallJumpLeft(deltaTime, audio);
+                }
+                else if(wallRight && state == WALL_SLIDE && movementVector.y > 0 && !isOnGround && !isWallJumpingRight)
+                {
+                    wallJumpRight(deltaTime, audio);
+                }
+                else
+                {
+                    jump(deltaTime, audio);
+                }
+                
+            }
+            if(!input.getButton().left && !input.getButton().right && isOnGround)
+            {
+                idle();
+            }
+            // Continue walljump if possible
+            if(isWallJumpingLeft)
                 wallJumpLeft(deltaTime, audio);
-            }
-            else if(wallRight && state == WALL_SLIDE && movementVector.y > 0 && !isOnGround && !isWallJumpingRight)
-            {
+            if(isWallJumpingRight)
                 wallJumpRight(deltaTime, audio);
-            }
-            else
+
+            // If the player is not on the ground, it's in the air so switch to jump animation
+            if(!isOnGround && state != JUMP)
             {
-                jump(deltaTime, audio);
+                changeState(JUMP);
             }
-            
         }
-        if(!input.getButton().left && !input.getButton().right && isOnGround)
+        else
         {
-            idle();
+            dashTime -= deltaTime.asSeconds();
+            switch(dashDirection)
+            {
+                case UP:
+                    movementVector.x = 0;
+                    movementVector.y = -DASH_POWER * deltaTime.asSeconds();
+                    break;
+                case BOTTOM:
+                    movementVector.x = 0;
+                    movementVector.y = DASH_POWER * deltaTime.asSeconds();
+                    break;
+                case LEFT:
+                    movementVector.x = -DASH_POWER * deltaTime.asSeconds();
+                    movementVector.y = 0;
+                    break;
+                case RIGHT:
+                    movementVector.x = DASH_POWER * deltaTime.asSeconds();
+                    movementVector.y = 0;
+                    break;
+                case UP_LEFT:
+                    movementVector.y = -DASH_POWER * deltaTime.asSeconds();
+                    movementVector.x = -DASH_POWER * deltaTime.asSeconds();
+                    break;
+                case UP_RIGHT:
+                    movementVector.y = -DASH_POWER * deltaTime.asSeconds();
+                    movementVector.x = DASH_POWER * deltaTime.asSeconds();
+                    break;
+                case BOTTOM_LEFT:
+                    movementVector.y = DASH_POWER * deltaTime.asSeconds();
+                    movementVector.x = -DASH_POWER * deltaTime.asSeconds();
+                    break;
+                case BOTTOM_RIGHT:
+                    movementVector.y = DASH_POWER * deltaTime.asSeconds();
+                    movementVector.x = DASH_POWER * deltaTime.asSeconds();
+                    break;
+            }
+            if(dashTime <= 0)
+            {
+                isDashing = false;
+            }
         }
-        // Continue walljump if possible
-        if(isWallJumpingLeft)
-            wallJumpLeft(deltaTime, audio);
-        if(isWallJumpingRight)
-            wallJumpRight(deltaTime, audio);
-
-        // If the player is not on the ground, it's in the air so switch to jump animation
-        if(!isOnGround && state != JUMP)
-        {
-            changeState(JUMP);
-        }
-
+        
     }
     else
     {
@@ -232,6 +294,7 @@ void Character::handleCollision(Tilemap &map)
             position.y -= SPRITE_HEIGHT;
             movementVector.y = 0;
             isOnGround = true;
+            canDash = true;
         }
     }
     // Moving towards top
@@ -259,6 +322,39 @@ void Character::handleCollision(Tilemap &map)
         map.collectibleTiles[yBottom][xRight] >= SPIKES)
     {
         kill();
+    }
+}
+
+void Character::startDashing(UserInput &input)
+{
+    if(canDash && !isOnGround)
+    {
+        audio->playDashSound();
+        changeState(JUMP);
+        isDashing = true;
+        canDash = false;
+        if(input.getButton().up && input.getButton().left)
+            dashDirection = UP_LEFT;
+        else if(input.getButton().up && input.getButton().right)
+            dashDirection = UP_RIGHT;
+        else if(input.getButton().up)
+            dashDirection = UP;
+        else if(input.getButton().down && input.getButton().left)
+            dashDirection = BOTTOM_LEFT;
+        else if(input.getButton().down && input.getButton().right)
+            dashDirection = BOTTOM_RIGHT;
+        else if(input.getButton().down)
+            dashDirection = BOTTOM;
+        else if(input.getButton().left)
+            dashDirection = LEFT;
+        else if(input.getButton().right)
+            dashDirection = RIGHT;
+        else
+            dashDirection = direction;
+        if(dashDirection == UP_LEFT || dashDirection == UP_RIGHT || dashDirection == BOTTOM_RIGHT || dashDirection == BOTTOM_LEFT)
+            dashTime = DASH_TIME / 1.5;
+        else
+            dashTime = DASH_TIME;
     }
 }
 
@@ -369,6 +465,8 @@ void Character::kill()
         if(audio)
             audio->playKillSound();
         isDead = true;
+        isDashing = false;
+        canDash = false;
         deathTimer =  DEATH_TIMER;
     }
 }

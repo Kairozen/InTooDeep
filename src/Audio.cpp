@@ -51,10 +51,17 @@ Audio::Audio() {
         std::cerr << L"Le son de Kill n'a pas pu être chargé" << std::endl;
     else
     {        
-        killSound.setVolume(50);
+        killSound.setVolume(30);
         killSound.setBuffer(killSoundB);
     }
-        
+      
+    if(!dashSoundB.loadFromFile("audio/dash.wav"))
+        std::cerr << L"Le son de dash n'a pas pu être chargé" << std::endl;
+    else
+    {        
+        dashSound.setVolume(30);
+        dashSound.setBuffer(dashSoundB);
+    }  
 }
 
 void Audio::playJumpSound() {
@@ -88,4 +95,7 @@ void Audio::playKillSound() {
     killSound.play();
 }
 
+void Audio::playDashSound() {
+    dashSound.play();
+}
 #endif

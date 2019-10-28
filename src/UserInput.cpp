@@ -10,7 +10,7 @@ UserInput::UserInput() {
     button.up = false;
     button.down = false;
     button.jump = false;
-    button.attack = false;
+    button.dash = false;
 }
 
 UserInput::Button UserInput::getButton() {
@@ -51,8 +51,8 @@ void UserInput::inputManagement(RenderWindow &window) {
                         button.right = true;
                         break;
 
-                    case Keyboard::A:
-                        button.attack = true;
+                    case Keyboard::LShift:
+                        button.dash = true;
                         break;
 
                     default:
@@ -84,8 +84,8 @@ void UserInput::inputManagement(RenderWindow &window) {
                         button.right = false;
                         break;
 
-                    case Keyboard::A:
-                        button.attack = false;
+                    case Keyboard::LShift:
+                        button.dash = false;
                         break;
 
                     default:

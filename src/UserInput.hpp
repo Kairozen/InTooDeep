@@ -9,7 +9,7 @@ class UserInput {
 
 private:
     struct Button {
-        bool up, down, right, left, jump, attack;
+        bool up, down, right, left, jump, dash;
     };
 
     // Variables pour les événements et les bouttons du jeu
