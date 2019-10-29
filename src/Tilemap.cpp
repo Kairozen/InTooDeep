@@ -94,6 +94,7 @@ void Tilemap::loadLevel(string filename)
             backgroundTiles[y][x] = mapLines[y + MAX_Y + MAX_Y][x];
         }
     }
+    respawnObjects.clear();
 }
 
 void Tilemap::drawBackground(RenderWindow &window)
@@ -142,6 +143,33 @@ void Tilemap::drawMap(RenderWindow &window)
 void Tilemap::changeLevel() 
 {
     loadLevel("maps/level" + to_string(level) + ".csv");
+}
+
+
+void Tilemap::pickupDiamond(int x, int y)
+{
+    collectibleTiles[y][x] = 0;
+}
+
+void Tilemap::pickupDashStone(int x, int y)
+{
+    collectibleTiles[y][x] = 0;
+    RespawnObject ro = {x, y, DASH_STONE, COLLECTIBLE_RESPAWN_TIME};
+    respawnObjects.push_back(ro);
+}
+
+void Tilemap::update(Time &deltaTime)
+{
+    for (size_t i = 0; i < respawnObjects.size(); i++)
+    {
+        respawnObjects[i].respawnTime -= deltaTime.asSeconds();
+        if(respawnObjects[i].respawnTime <= 0)
+        {
+            collectibleTiles[respawnObjects[i].y][respawnObjects[i].x] = respawnObjects[i].type;
+            respawnObjects.erase(respawnObjects.begin() + i);
+        }
+    }
+    
 }
 
 #endif

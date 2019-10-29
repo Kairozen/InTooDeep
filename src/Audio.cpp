@@ -61,6 +61,22 @@ Audio::Audio() {
     {        
         dashSound.setVolume(30);
         dashSound.setBuffer(dashSoundB);
+    }     
+
+    if(!diamondSoundB.loadFromFile("audio/diamond.wav"))
+        std::cerr << L"Le son de diamond n'a pas pu être chargé" << std::endl;
+    else
+    {        
+        diamondSound.setVolume(30);
+        diamondSound.setBuffer(diamondSoundB);
+    }        
+
+    if(!dashStoneSoundB.loadFromFile("audio/dash_stone.wav"))
+        std::cerr << L"Le son de dash n'a pas pu être chargé" << std::endl;
+    else
+    {        
+        dashStoneSound.setVolume(30);
+        dashStoneSound.setBuffer(dashStoneSoundB);
     }  
 }
 
@@ -97,5 +113,13 @@ void Audio::playKillSound() {
 
 void Audio::playDashSound() {
     dashSound.play();
+}
+
+void Audio::playDiamondSound() {
+    diamondSound.play();
+}
+
+void Audio::playDashStoneSound() {
+    dashStoneSound.play();
 }
 #endif

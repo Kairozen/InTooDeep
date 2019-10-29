@@ -11,7 +11,7 @@
 
 #define DELTATIME_MULTIPLICATOR 60
 #define DEATH_TIMER 2
-#define SPIKES 1021
+
 #define DASH_TIME 0.25
 
 #define UP 1
@@ -31,6 +31,9 @@ public:
 	const int SPRITE_HEIGHT = 16;
 	const int SPRITE_WIDTH = 11;
 
+	const int CHARACTER_HEIGHT = 14;
+	const int CHARACTER_WIDTH = 9;
+
 	const int IDLE = 0;
 	const int RUN = 1;
 	const int JUMP = 2;
@@ -42,11 +45,12 @@ public:
 	const float JUMP_LIMIT = 0.1f;
 	const float WALL_JUMP_LIMIT = 0.2f;
 	const int RUNNING_SPEED = 100;
-	const int MAX_FALLING_SPEED = 9;
+	const int MAX_FALLING_SPEED = 7;
 
 	const int DASH_POWER = 220;
 
 	int lives;
+	int nbDiamonds;
 
 	float jumpTime;
 	bool isJumping;
@@ -66,6 +70,7 @@ public:
 	float dashTime;
 
 	int state;
+	bool goToNextLevel;
 
 	Audio *audio;
 

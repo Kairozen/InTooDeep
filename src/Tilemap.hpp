@@ -15,9 +15,24 @@
 #define TILESET_COLUMN_SIZE 32
 #define TILESET_LINE_SIZE 32
 
+#define SPIKES 1021
+#define DIAMOND 602
+#define DASH_STONE 600
+#define MONSTER_TILE 561
+#define NEXT_LEVEL 81
+
+#define COLLECTIBLE_RESPAWN_TIME 1.5
+
 using namespace sf;
 
 class Character;
+
+struct RespawnObject
+{
+    int x, y, type;
+    float respawnTime;
+};
+
 
 class Tilemap 
 {
@@ -36,6 +51,9 @@ class Tilemap
         // Character starting position
         Vector2<int> characterBeginPosition;
 
+        // Vector of objects that will respawn soon
+        std::vector<RespawnObject> respawnObjects;
+
         // Tilemaps
         int backgroundTiles[MAX_Y][MAX_X];
         int collidingTiles[MAX_Y][MAX_X];
@@ -52,6 +70,12 @@ class Tilemap
         void drawMap(RenderWindow &window);
 
         void changeLevel();
+
+        void pickupDiamond(int x, int y);
+
+        void pickupDashStone(int x, int y);
+
+        void update(Time &deltaTime);
 };
 
 #endif

@@ -25,6 +25,7 @@ Character::Character()
 void Character::initialize()
 {
     lives = 3;
+    nbDiamonds = 0;
     direction = RIGHT;
     changeState(IDLE);
     isOnGround = false;
@@ -44,7 +45,8 @@ void Character::initialize()
     jumpTime = 0;
     isDashing = false;
     canDash = true;
-    collidingBox = FloatRect(position.x, position.y, SPRITE_WIDTH, SPRITE_HEIGHT);
+    goToNextLevel = false;
+    collidingBox = FloatRect(position.x + ((SPRITE_WIDTH - CHARACTER_WIDTH) >> 1), position.y + SPRITE_HEIGHT - CHARACTER_HEIGHT, CHARACTER_WIDTH, CHARACTER_HEIGHT);
 }
 
 void Character::draw(RenderWindow &window, Time &deltaTime)
@@ -119,7 +121,7 @@ void Character::update(UserInput &input, Audio &audio, Tilemap& map, Time &delta
     }
     if(!isDead)
     {
-        if(input.getButton().dash)
+        if(input.getButton().dash && !input.getLastButton().dash)
         {
             startDashing(input);
         }
@@ -227,8 +229,8 @@ void Character::update(UserInput &input, Audio &audio, Tilemap& map, Time &delta
 
     handleCollision(map);
 
-    collidingBox.left = position.x;
-    collidingBox.top = position.y;
+    collidingBox.left = position.x + ((SPRITE_WIDTH - CHARACTER_WIDTH) >> 1);
+    collidingBox.top = position.y + SPRITE_HEIGHT - CHARACTER_HEIGHT;
 
     if(wallRight && input.getButton().right)
     {
@@ -238,6 +240,10 @@ void Character::update(UserInput &input, Audio &audio, Tilemap& map, Time &delta
     {
         changeState(WALL_SLIDE);
     }
+    if(position.x < 0)
+        position.x = 0;
+    if(position.x + SPRITE_WIDTH > MAX_X * TILE_SIZE)
+        position.x = MAX_X * TILE_SIZE;
     
 }
 
@@ -249,10 +255,10 @@ void Character::handleCollision(Tilemap &map)
     wallLeft = false;
 
     // Horizontal collisions
-    xLeft = (position.x + movementVector.x) / TILE_SIZE;
-    xRight = (position.x + movementVector.x + SPRITE_WIDTH) / TILE_SIZE;
-    yTop = position.y / TILE_SIZE;
-    yBottom = (position.y + SPRITE_HEIGHT - 1) / TILE_SIZE;
+    xLeft = (collidingBox.left + movementVector.x) / TILE_SIZE;
+    xRight = (collidingBox.left + collidingBox.width + movementVector.x) / TILE_SIZE;
+    yTop = collidingBox.top / TILE_SIZE;
+    yBottom = (collidingBox.top + collidingBox.height - 1) / TILE_SIZE;
 
     // Moving to the left
     if(movementVector.x < 0)
@@ -271,18 +277,18 @@ void Character::handleCollision(Tilemap &map)
         // Collision with colliding tiles
         if(map.collidingTiles[yTop][xRight] || map.collidingTiles[yBottom][xRight])
         {
-            position.x = xRight * TILE_SIZE;
-            position.x -= SPRITE_WIDTH + 1;
+            position.x = (xRight * TILE_SIZE) - SPRITE_WIDTH;
+            // position.x -= SPRITE_WIDTH + 1;
             movementVector.x = 0;
             wallRight = true;
         }
     }
 
     // Vertical collisions
-    xLeft = position.x / TILE_SIZE;
-    xRight = (position.x + SPRITE_WIDTH) / TILE_SIZE;
-    yTop = (position.y + movementVector.y) / TILE_SIZE;
-    yBottom = (position.y + movementVector.y + SPRITE_HEIGHT) / TILE_SIZE;
+    xLeft = collidingBox.left / TILE_SIZE;
+    xRight = (collidingBox.left + collidingBox.width) / TILE_SIZE;
+    yTop = (collidingBox.top + movementVector.y) / TILE_SIZE;
+    yBottom = (collidingBox.top + movementVector.y + collidingBox.height) / TILE_SIZE;
 
     // Moving towards bottom
     if(movementVector.y > 0)
@@ -311,17 +317,83 @@ void Character::handleCollision(Tilemap &map)
     position += movementVector;
 
     // New position
-    xLeft = position.x / TILE_SIZE;
-    xRight = (position.x + SPRITE_WIDTH) / TILE_SIZE;
-    yTop = position.y / TILE_SIZE;
-    yBottom = (position.y + SPRITE_HEIGHT) / TILE_SIZE;
-    // Collision with spikes
-    if(map.collectibleTiles[yTop][xLeft] >= SPIKES || 
-        map.collectibleTiles[yTop][xRight] >= SPIKES ||
-        map.collectibleTiles[yBottom][xLeft] >= SPIKES ||
-        map.collectibleTiles[yBottom][xRight] >= SPIKES)
+    xLeft = collidingBox.left / TILE_SIZE;
+    xRight = (collidingBox.left + collidingBox.width) / TILE_SIZE;
+    yTop = collidingBox.top / TILE_SIZE;
+    yBottom = (collidingBox.top + collidingBox.height) / TILE_SIZE;
+
+    // Collision with other objects 
+    if(map.collectibleTiles[yTop][xLeft] || 
+        map.collectibleTiles[yTop][xRight] ||
+        map.collectibleTiles[yBottom][xLeft] ||
+        map.collectibleTiles[yBottom][xRight])
     {
-        kill();
+        // Collision with spikes
+        if(map.collectibleTiles[yTop][xLeft] >= SPIKES || 
+            map.collectibleTiles[yTop][xRight] >= SPIKES ||
+            map.collectibleTiles[yBottom][xLeft] >= SPIKES ||
+            map.collectibleTiles[yBottom][xRight] >= SPIKES)
+        {
+            kill();
+        }
+        // Collision with diamond
+        if(map.collectibleTiles[yTop][xLeft] == DIAMOND)
+        {
+            map.pickupDiamond(xLeft, yTop);
+            audio->playDiamondSound();
+            nbDiamonds++;
+        }
+        else if(map.collectibleTiles[yTop][xRight] == DIAMOND)
+        {
+            map.pickupDiamond(xRight, yTop);
+            audio->playDiamondSound();
+            nbDiamonds++;
+        }
+        else if(map.collectibleTiles[yBottom][xLeft] == DIAMOND)
+        {
+            map.pickupDiamond(xLeft, yBottom);
+            audio->playDiamondSound();
+            nbDiamonds++;
+        }
+        else if(map.collectibleTiles[yBottom][xRight] == DIAMOND)
+        {
+            map.pickupDiamond(xRight, yBottom);
+            audio->playDiamondSound();
+            nbDiamonds++;
+        }
+        // Collision with dash stone
+        if(map.collectibleTiles[yTop][xLeft] == DASH_STONE)
+        {
+            map.pickupDashStone(xLeft, yTop);
+            audio->playDashStoneSound();
+            canDash = true;
+        }
+        else if(map.collectibleTiles[yTop][xRight] == DASH_STONE)
+        {
+            map.pickupDashStone(xRight, yTop);
+            audio->playDashStoneSound();
+            canDash = true;
+        }
+        else if(map.collectibleTiles[yBottom][xLeft] == DASH_STONE)
+        {
+            map.pickupDashStone(xLeft, yBottom);
+            audio->playDashStoneSound();
+            canDash = true;
+        }
+        else if(map.collectibleTiles[yBottom][xRight] == DASH_STONE)
+        {
+            map.pickupDashStone(xRight, yBottom);
+            audio->playDashStoneSound();
+            canDash = true;
+        }
+        // For going to next level
+        if(map.collectibleTiles[yTop][xLeft] == NEXT_LEVEL || 
+            map.collectibleTiles[yTop][xRight] == NEXT_LEVEL ||
+            map.collectibleTiles[yBottom][xLeft] == NEXT_LEVEL ||
+            map.collectibleTiles[yBottom][xRight] == NEXT_LEVEL)
+        {
+            goToNextLevel = true;
+        }
     }
 }
 

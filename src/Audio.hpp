@@ -16,6 +16,8 @@ public:
     Sound stompSound;
     Sound killSound;
     Sound dashSound;
+    Sound dashStoneSound;
+    Sound diamondSound;
     SoundBuffer coinSoundB;
     SoundBuffer stageClearSoundB;
     SoundBuffer bumpSoundB;
@@ -24,6 +26,8 @@ public:
     SoundBuffer stompSoundB;
     SoundBuffer killSoundB;
     SoundBuffer dashSoundB;
+    SoundBuffer dashStoneSoundB;
+    SoundBuffer diamondSoundB;
 
     Audio();
 
@@ -42,6 +46,10 @@ public:
     void playKillSound();
 
     void playDashSound();
+
+    void playDiamondSound();
+    
+    void playDashStoneSound();
 };
 
 #endif

@@ -17,7 +17,12 @@ UserInput::Button UserInput::getButton() {
     return button;
 }
 
+UserInput::Button UserInput::getLastButton() {
+    return lastButton;
+}
+
 void UserInput::inputManagement(RenderWindow &window) {
+    lastButton = button;
     // Boucle des événements
     while (window.pollEvent(event)) {
         // Gestion des différents cas d'événements

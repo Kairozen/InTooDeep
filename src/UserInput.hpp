@@ -15,6 +15,7 @@ private:
     // Variables pour les événements et les bouttons du jeu
     Event event;
     Button button;
+    Button lastButton;
 
 public:
 
@@ -23,6 +24,9 @@ public:
 
     // Accesseur des entrées
     Button getButton();
+
+    // Accesseur des entrées
+    Button getLastButton();
 
     // Pour gérer le clavier
     void inputManagement(RenderWindow &window);

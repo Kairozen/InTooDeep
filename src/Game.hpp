@@ -16,9 +16,8 @@
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 480
 
-#define CAMERA_ZOOM 0.35
+#define CAMERA_ZOOM 0.4
 
-#define MONSTER_TILE 561
 #define MONSTER_REBOUND 4
 
 using namespace sf;
@@ -31,7 +30,8 @@ private:
 	Clock 			deltaClock;
 	Character 		character;
 	UserInput		userInput;
-	Text			text;
+	Text			fpsText;
+	Text			diamondText;
 	Font 			font;
 	Audio			audio;
 	std::vector<Monster*> monsters;

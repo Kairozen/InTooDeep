@@ -2,6 +2,7 @@
 #define GAME_CPP
 
 #include "Game.hpp"
+#include <cmath>
 
 Game::Game() : window(VideoMode(WINDOW_WIDTH,WINDOW_HEIGHT), "Game") 
 {
@@ -11,10 +12,15 @@ Game::Game() : window(VideoMode(WINDOW_WIDTH,WINDOW_HEIGHT), "Game")
     monsters = std::vector<Monster*>();
     audio.playBackgroundMusic();
     nextLevel();
-    font.loadFromFile("fonts/Bubblegum.ttf");
-    text.setFont(font);
-    text.setFillColor(Color::Black);
-    text.setCharacterSize(15);
+    font.loadFromFile("fonts/Pixeled.ttf");
+    fpsText.setFont(font);
+    fpsText.setPosition(window.getSize().x - 100, 10);
+    fpsText.setFillColor(Color::White);
+    fpsText.setCharacterSize(15);
+    diamondText.setFont(font);
+    diamondText.setPosition(20, 10);
+    diamondText.setFillColor(Color::White);
+    diamondText.setCharacterSize(15);
     camera = window.getView();
     camera.zoom(CAMERA_ZOOM);
     character.audio = &audio;
@@ -50,12 +56,18 @@ void Game::moveCamera()
 
 void Game::update(Time &deltaTime)
 {
+    if(character.goToNextLevel && tilemap.level < 2)
+    {
+        nextLevel();
+    }
     // Update character
     character.update(userInput, audio, tilemap, deltaTime);
     if(character.isDead && character.deathTimer <= 0)
     {
         resetLevel();
     }
+    // Update tilemap
+    tilemap.update(deltaTime);
     // Update monsters and collision with player
     for(size_t i = 0; i < monsters.size(); ++i)
     {
@@ -74,6 +86,8 @@ void Game::update(Time &deltaTime)
             character.kill();
         }
     }
+    // Update text diamonds
+    diamondText.setString(std::to_string(character.nbDiamonds) + " / 3");
 }
 
 void Game::renderGraphics(Time &deltaTime) 
@@ -88,7 +102,8 @@ void Game::renderGraphics(Time &deltaTime)
         monster->draw(window, deltaTime);
     character.draw(window, deltaTime);
     window.setView(window.getDefaultView());
-    window.draw(text);
+    window.draw(fpsText);
+    window.draw(diamondText);
     window.display();
 }
 
@@ -104,8 +119,7 @@ void Game::run()
     while (window.isOpen()) 
     {
         deltaTime = deltaClock.restart();
-        text.setString(std::to_string(1.0/deltaTime.asSeconds()));
-        //std::cout << "FPS : " << 1.0 / deltaTime.asSeconds() << std::endl;
+        fpsText.setString(std::to_string((int)std::ceil(1.0/deltaTime.asSeconds())) + " fps");
         processEvents();
         update(deltaTime);
         renderGraphics(deltaTime);
@@ -123,9 +137,9 @@ void Game::nextLevel()
 
 void Game::resetLevel()
 {
-    character.initialize();
     tilemap.changeLevel();
     initializeMonsters();
+    character.initialize();
 }
 
 void Game::initializeMonsters()
