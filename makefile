@@ -7,10 +7,10 @@ CXX := g++
 all: application
 
 %.o: %.cpp
-		$(CXX) $(CC_FLAGS) $< -o $@; mv src/*.o obj
+		$(CXX) $(CC_FLAGS) $< -o $@; mv src/*.o obj/
 
 %.o: %.hpp
-		$(CXX) $(CC_FLAGS) $< -o $@; mv src/*.o obj
+		$(CXX) $(CC_FLAGS) $< -o $@; mv src/*.o obj/
 
 application: src/main.o src/Game.o src/Tilemap.o src/Character.o src/UserInput.o src/Entity.o src/Monster.o src/Audio.o
 		@echo "Building the game"
