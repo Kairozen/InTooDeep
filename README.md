@@ -4,11 +4,11 @@ A 2D platformer game made with C++ and the SFML library.
 
 ## Controls
 
-- Z / Q / S / D : Direction keys
+- (Z / Q / S / D) / (Directional arrows) / (W / A / S / D) : Direction keys
 
 - Spacebar : Jump
 
-- LeftShift : Dash
+- LeftShift / RShift : Dash
 
 You can dash mid-air in all 8 directions using the direction keys and the dash button. You can usually do only one dash before landing on the ground again, but when picking up a ruby, you will be able to dash again mid-air. 
 

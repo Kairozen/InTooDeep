@@ -44,7 +44,19 @@ void UserInput::inputManagement(RenderWindow &window) {
                         button.up = true;
                         break;
 
+                    case Keyboard::W:
+                        button.up = true;
+                        break;
+
+                    case Keyboard::Up:
+                        button.up = true;
+                        break;
+
                     case Keyboard::S:
+                        button.down = true;
+                        break;
+
+                    case Keyboard::Down:
                         button.down = true;
                         break;
 
@@ -52,11 +64,27 @@ void UserInput::inputManagement(RenderWindow &window) {
                         button.left = true;
                         break;
 
+                    case Keyboard::A:
+                        button.left = true;
+                        break;
+
+                    case Keyboard::Left:
+                        button.left = true;
+                        break;
+
                     case Keyboard::D:
                         button.right = true;
                         break;
 
+                    case Keyboard::Right:
+                        button.right = true;
+                        break;
+
                     case Keyboard::LShift:
+                        button.dash = true;
+                        break;
+
+                    case Keyboard::RShift:
                         button.dash = true;
                         break;
 
@@ -77,7 +105,19 @@ void UserInput::inputManagement(RenderWindow &window) {
                         button.up = false;
                         break;
 
+                    case Keyboard::W:
+                        button.up = false;
+                        break;
+
+                    case Keyboard::Up:
+                        button.up = false;
+                        break;
+
                     case Keyboard::S:
+                        button.down = false;
+                        break;
+
+                    case Keyboard::Down:
                         button.down = false;
                         break;
 
@@ -85,11 +125,27 @@ void UserInput::inputManagement(RenderWindow &window) {
                         button.left = false;
                         break;
 
+                    case Keyboard::A:
+                        button.left = false;
+                        break;
+
+                    case Keyboard::Left:
+                        button.left = false;
+                        break;
+
                     case Keyboard::D:
                         button.right = false;
                         break;
 
+                    case Keyboard::Right:
+                        button.right = false;
+                        break;
+
                     case Keyboard::LShift:
+                        button.dash = false;
+                        break;
+
+                    case Keyboard::RShift:
                         button.dash = false;
                         break;
 
