@@ -102,11 +102,20 @@ void Tilemap::drawBackground(RenderWindow &window)
     window.draw(backgroundSprite);
 }
 
-void Tilemap::drawMap(RenderWindow &window)
+void Tilemap::drawMap(RenderWindow &window, View &camera)
 {
-    for(int y = mapStart.y; y < mapEnd.y; ++y)
+    int centerX = camera.getCenter().x / TILE_SIZE;
+    int centerY = camera.getCenter().y / TILE_SIZE;
+    int horizontalLengthToDraw = (camera.getSize().x / TILE_SIZE);
+    int verticalLengthToDraw = (camera.getSize().y / TILE_SIZE); 
+    int mapStartX = centerX - ((horizontalLengthToDraw >> 1) + 1); 
+    int mapEndX = centerX + ((horizontalLengthToDraw >> 1) + 1); 
+    int mapStartY = centerY - ((verticalLengthToDraw >> 1) + 1); 
+    int mapEndY = centerY + ((verticalLengthToDraw >> 1) + 1);
+
+    for(int y = mapStartY; y < mapEndY; ++y)
     {
-        for(int x = mapStart.x; x < mapEnd.x; ++x)
+        for(int x = mapStartX; x < mapEndX; ++x)
         {
             int tileNumCollectible = collectibleTiles[y][x] - 1;
             int tileNumBackground = backgroundTiles[y][x] - 1;
@@ -136,6 +145,39 @@ void Tilemap::drawMap(RenderWindow &window)
                 window.draw(tilesetSprite);
             }
         }
+
+    // for(int y = mapStart.y; y < mapEnd.y; ++y)
+    // {
+    //     for(int x = mapStart.x; x < mapEnd.x; ++x)
+    //     {
+    //         int tileNumCollectible = collectibleTiles[y][x] - 1;
+    //         int tileNumBackground = backgroundTiles[y][x] - 1;
+    //         int tileNumColliding = collidingTiles[y][x] - 1;
+    //         if(tileNumBackground > -1)
+    //         {
+    //             int horizontalPositionOnSprite = (tileNumBackground % TILESET_LINE_SIZE) * TILE_SIZE;
+    //             int verticalPositionOnSprite = (tileNumBackground / TILESET_LINE_SIZE) * TILE_SIZE;
+    //             tilesetSprite.setPosition(Vector2f(x * TILE_SIZE, y * TILE_SIZE));
+    //             tilesetSprite.setTextureRect(IntRect(horizontalPositionOnSprite, verticalPositionOnSprite, TILE_SIZE, TILE_SIZE));
+    //             window.draw(tilesetSprite);
+    //         }
+    //         if(tileNumColliding > -1)
+    //         {
+    //             int horizontalPositionOnSprite = (tileNumColliding % TILESET_LINE_SIZE) * TILE_SIZE;
+    //             int verticalPositionOnSprite = (tileNumColliding / TILESET_LINE_SIZE) * TILE_SIZE;
+    //             tilesetSprite.setPosition(Vector2f(x * TILE_SIZE, y * TILE_SIZE));
+    //             tilesetSprite.setTextureRect(IntRect(horizontalPositionOnSprite, verticalPositionOnSprite, TILE_SIZE, TILE_SIZE));
+    //             window.draw(tilesetSprite);
+    //         }            
+    //         if(tileNumCollectible > -1)
+    //         {
+    //             int horizontalPositionOnSprite = (tileNumCollectible % TILESET_LINE_SIZE) * TILE_SIZE;
+    //             int verticalPositionOnSprite = (tileNumCollectible / TILESET_LINE_SIZE) * TILE_SIZE;
+    //             tilesetSprite.setPosition(Vector2f(x * TILE_SIZE, y * TILE_SIZE));
+    //             tilesetSprite.setTextureRect(IntRect(horizontalPositionOnSprite, verticalPositionOnSprite, TILE_SIZE, TILE_SIZE));
+    //             window.draw(tilesetSprite);
+    //         }
+    //     }
         //cout << endl;
     }
 }

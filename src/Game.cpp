@@ -95,7 +95,7 @@ void Game::renderGraphics(Time &deltaTime)
     window.setView(camera);
     window.clear();
     tilemap.drawBackground(window);
-    tilemap.drawMap(window);
+    tilemap.drawMap(window, camera);
     moveCamera();
     
     for(auto& monster: monsters)

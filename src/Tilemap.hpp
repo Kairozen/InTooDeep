@@ -67,7 +67,7 @@ class Tilemap
 
         void loadLevel(std::string filename);
 
-        void drawMap(RenderWindow &window);
+        void drawMap(RenderWindow &window, View &camera);
 
         void changeLevel();
 

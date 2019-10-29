@@ -147,11 +147,11 @@ void Character::update(UserInput &input, Audio &audio, Tilemap& map, Time &delta
             }
             if(input.getButton().jump)
             {
-                if(wallLeft && state == WALL_SLIDE && movementVector.y > 0 && !isOnGround && !isWallJumpingLeft)
+                if(!input.getLastButton().jump && wallLeft && state == WALL_SLIDE && movementVector.y > 0 && !isOnGround && !isWallJumpingLeft)
                 {
                     wallJumpLeft(deltaTime, audio);
                 }
-                else if(wallRight && state == WALL_SLIDE && movementVector.y > 0 && !isOnGround && !isWallJumpingRight)
+                else if(!input.getLastButton().jump && wallRight && state == WALL_SLIDE && movementVector.y > 0 && !isOnGround && !isWallJumpingRight)
                 {
                     wallJumpRight(deltaTime, audio);
                 }
