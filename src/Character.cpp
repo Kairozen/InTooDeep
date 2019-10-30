@@ -29,7 +29,7 @@ void Character::initialize()
     direction = RIGHT;
     changeState(IDLE);
     isOnGround = false;
-    position = Vector2f(0,0);
+    position = Vector2f(0,TILE_SIZE);
     movementVector = Vector2f(0,0);
     isJumping = false;
     isSlidingOnWall = false;

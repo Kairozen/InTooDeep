@@ -6,6 +6,7 @@
 
 Game::Game() : window(VideoMode(WINDOW_WIDTH,WINDOW_HEIGHT), "Game") 
 {
+    window.setTitle("In Too Deep");
     window.setFramerateLimit(60);
     userInput = UserInput();
     tilemap.level = 0;
@@ -56,7 +57,7 @@ void Game::moveCamera()
 
 void Game::update(Time &deltaTime)
 {
-    if(character.goToNextLevel && tilemap.level < 2)
+    if(character.goToNextLevel && tilemap.level < 3)
     {
         nextLevel();
     }
