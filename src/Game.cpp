@@ -119,11 +119,18 @@ void Game::run()
     // Gameloop
     while (window.isOpen()) 
     {
+        // Deltatime between this and last frame
         deltaTime = deltaClock.restart();
+
+        clockManager.add(deltaTime.asSeconds());
+        Time averageDeltaTime = seconds(clockManager.average());
+        
+        // Set fps text
         fpsText.setString(std::to_string((int)std::ceil(1.0/deltaTime.asSeconds())) + " fps");
+        //cout << "av : " << averageDeltaTime.asSeconds() << " dt : " << deltaTime.asSeconds() << endl;
         processEvents();
-        update(deltaTime);
-        renderGraphics(deltaTime);
+        update(averageDeltaTime);
+        renderGraphics(averageDeltaTime);
     }
 }
 

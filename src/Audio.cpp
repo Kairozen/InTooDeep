@@ -12,9 +12,6 @@ Audio::Audio() {
         musicBackground.setVolume(30);
     }
 
-    // if (!coinSoundB.loadFromFile("audio/coin.wav"))
-    //     std::cerr << L"Le son Coin n'a pas pu être chargé" << std::endl;
-
     if (!jumpSoundB.loadFromFile("audio/jump.wav"))
         std::cerr << L"Le son pour Jump na pas pu être chargé" << std::endl;
     else
@@ -22,7 +19,6 @@ Audio::Audio() {
         jumpSound.setBuffer(jumpSoundB);
         jumpSound.setVolume(30);   
     }
-        
 
     if (!walljumpSoundB.loadFromFile("audio/wall_jump.wav"))
         std::cerr << L"Le son pour walljump na pas pu être chargé" << std::endl;
@@ -31,13 +27,6 @@ Audio::Audio() {
         walljumpSound.setBuffer(walljumpSoundB);
         walljumpSound.setVolume(30);
     }
-        
-
-    // if (!bumpSoundB.loadFromFile("audio/bump.wav"))
-    //     std::cerr << L"Le son Bump n'a pas pu être chargé" << std::endl;
-
-    // if (!stageClearSoundB.loadFromFile("audio/stageClear.wav"))
-    //     std::cerr << L"Le son pour le StageClear n'a pas pu être chargé" << std::endl;
 
     if(!stompSoundB.loadFromFile("audio/stomp.ogg"))
         std::cerr << L"Le son de Stomp n'a pas pu être chargé" << std::endl;

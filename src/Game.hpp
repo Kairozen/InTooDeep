@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "Character.hpp"
+#include "ClockManager.hpp"
 #include "Tilemap.hpp"
 #include "Monster.hpp"
 #include "UserInput.hpp"
@@ -28,6 +29,7 @@ private:
 	Tilemap 		tilemap;
 	View 			camera;
 	Clock 			deltaClock;
+	ClockManager	clockManager;
 	Character 		character;
 	UserInput		userInput;
 	Text			fpsText;
