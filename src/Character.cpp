@@ -14,22 +14,25 @@ Character::Character()
     direction = RIGHT;
     lives = 3;
     
-    position = Vector2f(0,0);
+    position = checkpointPosition = Vector2f(0,TILE_SIZE);
     movementVector = Vector2f(0,0);
     changeState(IDLE);
     isOnGround = false;
     isDead = false;
+    hasCheckpoint = false;
+    nbDiamonds = 0;
     deathTimer = 0;
 }
 
 void Character::initialize()
 {
     lives = 3;
-    nbDiamonds = 0;
     direction = RIGHT;
     changeState(IDLE);
     isOnGround = false;
-    position = Vector2f(0,TILE_SIZE);
+    position = checkpointPosition;
+    if(!hasCheckpoint)
+        nbDiamonds = 0;
     movementVector = Vector2f(0,0);
     isJumping = false;
     isSlidingOnWall = false;
@@ -393,6 +396,18 @@ void Character::handleCollision(Tilemap &map)
             map.collectibleTiles[yBottom][xRight] == NEXT_LEVEL)
         {
             goToNextLevel = true;
+            hasCheckpoint = false;
+            checkpointPosition = Vector2f(0, TILE_SIZE);
+        }
+
+        // Checkpoint
+        if(map.collectibleTiles[yTop][xLeft] == CHECKPOINT || 
+            map.collectibleTiles[yTop][xRight] == CHECKPOINT ||
+            map.collectibleTiles[yBottom][xLeft] == CHECKPOINT ||
+            map.collectibleTiles[yBottom][xRight] == CHECKPOINT)
+        {
+            hasCheckpoint = true;
+            checkpointPosition = position;
         }
     }
 }

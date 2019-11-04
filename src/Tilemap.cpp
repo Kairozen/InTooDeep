@@ -108,10 +108,10 @@ void Tilemap::drawMap(RenderWindow &window, View &camera)
     int centerY = camera.getCenter().y / TILE_SIZE;
     int horizontalLengthToDraw = (camera.getSize().x / TILE_SIZE);
     int verticalLengthToDraw = (camera.getSize().y / TILE_SIZE); 
-    int mapStartX = centerX - ((horizontalLengthToDraw >> 1) + 1); 
-    int mapEndX = centerX + ((horizontalLengthToDraw >> 1) + 1); 
-    int mapStartY = centerY - ((verticalLengthToDraw >> 1) + 1); 
-    int mapEndY = centerY + ((verticalLengthToDraw >> 1) + 1);
+    int mapStartX = centerX - ((horizontalLengthToDraw >> 1) + 2); 
+    int mapEndX = centerX + ((horizontalLengthToDraw >> 1) + 2); 
+    int mapStartY = centerY - ((verticalLengthToDraw >> 1) + 2); 
+    int mapEndY = centerY + ((verticalLengthToDraw >> 1) + 2);
 
     for(int y = mapStartY; y < mapEndY; ++y)
     {

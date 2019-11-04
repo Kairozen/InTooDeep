@@ -72,6 +72,9 @@ public:
 	int state;
 	bool goToNextLevel;
 
+	Vector2f checkpointPosition;
+	bool hasCheckpoint;
+	
 	Audio *audio;
 
 	Character();

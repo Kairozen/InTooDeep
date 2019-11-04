@@ -20,7 +20,7 @@
 #define DASH_STONE 600
 #define MONSTER_TILE 561
 #define NEXT_LEVEL 81
-
+#define CHECKPOINT 435
 #define COLLECTIBLE_RESPAWN_TIME 1.5
 
 using namespace sf;
