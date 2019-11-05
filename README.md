@@ -2,6 +2,8 @@
 
 A 2D platformer game made with C++ and the SFML library.
 
+To compile, run ```make``` and run the "application" executable. 
+
 ## Controls
 
 - (Z / Q / S / D) / (Directional arrows) / (W / A / S / D) : Direction keys
