@@ -14,8 +14,8 @@
 #include "UserInput.hpp"
 #include "Audio.hpp"
 
-#define WINDOW_WIDTH 1024
-#define WINDOW_HEIGHT 576
+#define WINDOW_WIDTH 1280
+#define WINDOW_HEIGHT 720
 
 #define CAMERA_ZOOM 0.4
 

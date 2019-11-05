@@ -7,7 +7,7 @@
 Game::Game() : window(VideoMode(WINDOW_WIDTH,WINDOW_HEIGHT), "Game") 
 {
     window.setTitle("In Too Deep");
-    window.setFramerateLimit(60);
+    window.setFramerateLimit(0);
     userInput = UserInput();
     tilemap.level = 0;
     monsters = std::vector<Monster*>();

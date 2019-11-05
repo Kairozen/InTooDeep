@@ -1,6 +1,6 @@
 LIBS = -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 
-CC_FLAGS = -c -O1 -Wall -std=c++11
+CC_FLAGS = -c -O2 -Wall -std=c++11
 
 CXX := g++
 
